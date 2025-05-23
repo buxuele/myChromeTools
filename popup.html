@@ -1,6 +1,11 @@
 <!DOCTYPE html>
-<html>
+<!-- <html> -->
+
+<!-- 处理中文。 -->
+<html lang="zh-CN">
 <head>
+    <meta charset="UTF-8">
+
     <title>Background Changer</title>
     <style>
         body {
@@ -20,22 +25,17 @@
 </head>
 <body>
 
-<!-- 提供一个简单的界面让用户设置背景颜色。
-     颜色选择器，默认值为 #34347d。
--->
+
     <img src="images/g1.png" alt="image-icon-rainbow">
-    <h3>Set Background Color</h3>
+    <h3>Auto Scroll down</h3>
     <p>Current site: <span id="currentDomain"></span></p>
 
-    <input type="color" id="colorPicker" value="#34347d">
-<!--    <button id="resetButton">Reset</button>-->
 
-    <button id="saveButton">Save</button>
+    <!-- 新增的滚动控制按钮 -->
+    <button id="startScrollButton">自动滚动</button>
+    <button id="stopScrollButton">Stop</button>
+
     <script src="popup.js"></script>
-
-       <!-- 新增的滚动控制按钮 -->
-       <button id="startScrollButton">自动滚动</button>
-       <button id="stopScrollButton">停止滚动</button>
 
 </body>
 </html>

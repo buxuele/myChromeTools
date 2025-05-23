@@ -49,8 +49,13 @@
       "js": ["content.js"]
     },
     {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    },
+    {
       "matches": ["https://grok.com/*"],
       "js": ["content.js"]
     }
   ]
+ 
 }
