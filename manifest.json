@@ -1,0 +1,55 @@
+{
+  "manifest_version": 3,
+  "name": "myTools",
+  "description": "A toolbox for automating actions on specific websites",
+  "version": "1.0",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "downloads"
+  ],
+  "commands": {
+    "insert-text": {
+      "suggested_key": {
+        "default": "Ctrl+Q",
+        "mac": "Command+Shift+G"
+      },
+      "description": "在 grok.com 的对话框中输入预设文字"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "icons": {
+    "16": "/images/icon16_active.png",
+    "48": "/images/icon48_active.png",
+    "128": "/images/icon128_active.png"
+  },
+
+  "action": {
+    "default_icon": {
+      "16": "/images/icon16_active.png",
+      "48": "/images/icon48_active.png",
+      "128": "/images/icon128_active.png"
+    },
+    "default_popup": "popup.html"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["https://x.com/i/grok"],
+      "css": ["main.css"],
+      "js": ["content.js"]
+    },
+    {
+      "matches": ["https://i.pinimg.com/*"],
+      "js": ["content.js"]
+    },
+    {
+      "matches": ["https://grok.com/*"],
+      "js": ["content.js"]
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Background Changer</title>
+    <style>
+        body {
+            width: 300px;
+            padding: 20px;
+        }
+
+        button {
+            margin-top: 20px;
+        }
+
+        img {
+            width: 100px;
+            height: 100px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 提供一个简单的界面让用户设置背景颜色。
+     颜色选择器，默认值为 #34347d。
+-->
+    <img src="images/g1.png" alt="image-icon-rainbow">
+    <h3>Set Background Color</h3>
+    <p>Current site: <span id="currentDomain"></span></p>
+
+    <input type="color" id="colorPicker" value="#34347d">
+<!--    <button id="resetButton">Reset</button>-->
+
+    <button id="saveButton">Save</button>
+    <script src="popup.js"></script>
+
+</body>
+</html>
