@@ -125,14 +125,12 @@
   }
 
 
-
-
   // 3. 处理 https://grok.com/ 的逻辑， 插入提示词！
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "insertText" && window.location.href.startsWith("https://grok.com/")) {
       const dialogBox = document.querySelector("textarea") || document.querySelector("input[type='text']");
       if (dialogBox) {
-        const textToInsert = "你是一名计算机专家，编程高手。我是一名普通程序员。请用中文来解释。";
+        const textToInsert = "你是一名计算机专家，编程高手。\n我是一名普通程序员。请用中文来解释。\n\n";
         dialogBox.value = textToInsert;
         // 触发 input 事件，确保页面响应
         const inputEvent = new Event("input", { bubbles: true });
