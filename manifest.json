@@ -41,20 +41,19 @@
   "content_scripts": [
     {
       "matches": ["https://x.com/i/grok"],
-      "css": ["main.css"],
-      "js": ["content.js"]
+      "js": ["grok_content.js"]
     },
     {
       "matches": ["https://i.pinimg.com/*"],
-      "js": ["content.js"]
-    },
-    {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"]
+      "js": ["pinterest_content.js"]
     },
     {
       "matches": ["https://grok.com/*"],
-      "js": ["content.js"]
+      "js": ["grok_insert_text.js"]
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["scroll_control.js"]
     }
   ]
  
