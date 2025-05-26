@@ -12,7 +12,7 @@ git add .
 git commit -m "%message%"
 
 :: 将本地的提交推送到远程仓库
-@REM git push
+git push
 
 :: 显示执行 git push 后的 Git 状态
-@REM git status
+git status
