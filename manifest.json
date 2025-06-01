@@ -55,6 +55,10 @@
     {
       "matches": ["<all_urls>"],
       "js": ["scroll_control.js"]
+    },
+    {
+      "matches": ["https://aistudio.google.com/prompts/*"],
+      "js": ["gemini_auto_save.js"]
     }
   ]
  
