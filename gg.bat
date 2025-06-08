@@ -1,4 +1,7 @@
-@echo off                 ; 关闭命令的回显，即执行命令时不会显示命令本身
+chcp 65001 > nul
+
+git branch -M main
+
 :: 显示当前的 Git 状态
 git status
 

@@ -1,39 +1,128 @@
 <!DOCTYPE html>
-<!-- <html> -->
+ 
 
 <!-- 处理中文。 -->
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
 
-    <title>Background Changer</title>
+    <title>Auto Scroll Control</title>
     <style>
         body {
-            width: 300px;
-            padding: 20px;
+            width: 350px;
+            padding: 10px;
+            font-family: 'Microsoft YaHei', sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            background-color: white;
+            padding: 5px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+        }
+
+        h3 {
+            color: #333;
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .domain-info {
+            color: #666;
+            font-size: 14px;
+            margin: 10px 0;
+            padding: 8px;
+            background-color: #f8f8f8;
+            border-radius: 5px;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
         }
 
         button {
-            margin-top: 20px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-weight: 500;
         }
 
-        img {
-            width: 100px;
-            height: 100px;
+        .scroll-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .scroll-btn:hover {
+            background-color: #45a049;
+        }
+
+        .stop-btn {
+            background-color: #f44336;
+            color: white;
+            grid-column: span 2;
+        }
+
+        .stop-btn:hover {
+            background-color: #da190b;
+        }
+
+        .active {
+            background-color: #2196F3;
+        }
+
+        .auto-refresh-btn {
+            background-color: #9C27B0;
+            color: white;
+            grid-column: span 2;
+        }
+
+        .auto-refresh-btn:hover {
+            background-color: #7B1FA2;
+        }
+
+        .auto-refresh-btn.active {
+            background-color: #673AB7;
         }
     </style>
 </head>
 <body>
+    <div class="container">
+        <div class="header">
+            <img src="images/g1.png" alt="scroll-icon">
+            <h3>自动滚动控制</h3>
+        </div>
+        
+        <div class="domain-info">
+            当前网站: <span id="currentDomain"></span>
+        </div>
 
-
-    <img src="images/g1.png" alt="image-icon-rainbow">
-    <h3>Auto Scroll down</h3>
-    <p>Current site: <span id="currentDomain"></span></p>
-
-
-    <!-- 新增的滚动控制按钮 -->
-    <button id="startScrollButton">自动滚动</button>
-    <button id="stopScrollButton">Stop</button>
+        <div class="button-group">
+            <button id="normalSpeedBtn" class="scroll-btn">正常速度</button>
+            <button id="doubleSpeedBtn" class="scroll-btn">2倍速度</button>
+            <button id="fiveSpeedBtn" class="scroll-btn">5倍速度</button>
+            <button id="autoRefreshBtn" class="auto-refresh-btn">每3分钟自动刷新: 关闭</button>
+            <button id="stopScrollButton" class="stop-btn">停止滚动</button>
+        </div>
+    </div>
 
     <script src="popup.js"></script>
 

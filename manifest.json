@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "myTools",
+  "name": "myChromeTools",
   "description": "A toolbox for automating actions on specific websites",
   "version": "1.0",
   "permissions": [
