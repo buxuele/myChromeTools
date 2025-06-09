@@ -6,7 +6,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const autoRefreshBtn = document.getElementById('autoRefreshBtn');
     const currentDomain = document.getElementById('currentDomain');
 
-    let isAutoRefreshEnabled = false;
+    let isAutoRefreshEnabled = true; // 默认开启自动刷新
+
+    // 初始化自动刷新按钮状态
+    autoRefreshBtn.textContent = '自动刷新: 开启';
+    autoRefreshBtn.classList.add('active');
 
     // 检查当前标签页是否可以注入脚本
     function canInjectScript(tab) {
@@ -68,9 +72,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.log('发送消息失败:', error);
                 // 如果发送失败，重置按钮状态
                 updateButtonStates(null);
-                isAutoRefreshEnabled = false;
-                autoRefreshBtn.textContent = '每3分钟自动刷新: 关闭';
-                autoRefreshBtn.classList.remove('active');
+                isAutoRefreshEnabled = true; // 重置为默认开启状态
+                autoRefreshBtn.textContent = '自动刷新: 开启';
+                autoRefreshBtn.classList.add('active');
             });
         });
     }
@@ -78,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // 更新自动刷新按钮状态
     function updateAutoRefreshButton() {
         isAutoRefreshEnabled = !isAutoRefreshEnabled;
-        autoRefreshBtn.textContent = `每3分钟自动刷新: ${isAutoRefreshEnabled ? '开启' : '关闭'}`;
+        autoRefreshBtn.textContent = `自动刷新: ${isAutoRefreshEnabled ? '开启' : '关闭'}`;
         autoRefreshBtn.classList.toggle('active', isAutoRefreshEnabled);
         
         // 如果当前有滚动在进行，更新滚动状态
@@ -128,9 +132,9 @@ document.addEventListener('DOMContentLoaded', function () {
             }).finally(() => {
                 // 无论消息是否发送成功，都重置UI状态
                 updateButtonStates(null);
-                isAutoRefreshEnabled = false;
-                autoRefreshBtn.textContent = '每3分钟自动刷新: 关闭';
-                autoRefreshBtn.classList.remove('active');
+                isAutoRefreshEnabled = true; // 重置为默认开启状态
+                autoRefreshBtn.textContent = '自动刷新: 开启';
+                autoRefreshBtn.classList.add('active');
             });
         });
     });

@@ -1,13 +1,41 @@
 // 处理滚动控制逻辑，响应 popup.js 发送的 startScroll 和 stopScroll 消息。
 
-
 (function () {
     let scrollInterval = null;
     let refreshInterval = null;
     let currentSpeed = 1; // 默认速度倍率
     let isAutoRefreshEnabled = false;
     let lastRefreshTime = Date.now();
-  
+    let shouldAutoScroll = false; // 新增：标记是否需要自动滚动
+
+    // 保存滚动状态到 sessionStorage
+    function saveScrollState(speed, autoRefresh) {
+        sessionStorage.setItem('scrollState', JSON.stringify({
+            speed: speed,
+            autoRefresh: autoRefresh,
+            timestamp: Date.now()
+        }));
+    }
+
+    // 清除滚动状态
+    function clearScrollState() {
+        sessionStorage.removeItem('scrollState');
+    }
+
+    // 检查并恢复滚动状态
+    function checkAndRestoreScrollState() {
+        const savedState = sessionStorage.getItem('scrollState');
+        if (savedState) {
+            const state = JSON.parse(savedState);
+            // 如果状态保存时间在5分钟内，则恢复滚动
+            if (Date.now() - state.timestamp < 5 * 60 * 1000) {
+                smoothAutoScroll(state.speed, state.autoRefresh);
+            } else {
+                clearScrollState();
+            }
+        }
+    }
+
     function smoothAutoScroll(speed = 1, autoRefresh = false) {
         if (scrollInterval) {
             clearInterval(scrollInterval);
@@ -19,6 +47,8 @@
         currentSpeed = speed;
         isAutoRefreshEnabled = autoRefresh;
         lastRefreshTime = Date.now();
+        shouldAutoScroll = true; // 设置自动滚动标记
+        saveScrollState(speed, autoRefresh); // 保存状态
         
         const baseScrollAmount = 0.5; // 降低基础滚动量，因为帧率提高了
         const scrollAmount = baseScrollAmount * speed; // 根据速度调整滚动量
@@ -52,17 +82,16 @@
                     // 休息2秒
                     await new Promise(resolve => setTimeout(resolve, 2000));
                     
+                    // 保存当前状态
+                    const currentState = {
+                        speed: currentSpeed,
+                        autoRefresh: isAutoRefreshEnabled,
+                        timestamp: Date.now()
+                    };
+                    sessionStorage.setItem('scrollState', JSON.stringify(currentState));
+                    
                     // 刷新页面
                     window.location.reload();
-                    
-                    // 休息2秒（虽然页面会刷新，但为了完整性保留这个等待）
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                    
-                    // 更新最后刷新时间
-                    lastRefreshTime = Date.now();
-                    
-                    // 重新开始滚动
-                    smoothAutoScroll(currentSpeed, isAutoRefreshEnabled);
                 }
             }, 10000); // 每10秒检查一次
         }
@@ -157,6 +186,8 @@
         }
         currentSpeed = 1;
         isAutoRefreshEnabled = false;
+        shouldAutoScroll = false; // 清除自动滚动标记
+        clearScrollState(); // 清除保存的状态
     }
   
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -166,4 +197,11 @@
             stopScroll();
         }
     });
+
+    // 页面加载完成后检查是否需要恢复滚动
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', checkAndRestoreScrollState);
+    } else {
+        checkAndRestoreScrollState();
+    }
 })();
