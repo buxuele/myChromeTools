@@ -1,11 +1,3 @@
-// ==UserScript==
-// @name         Gemini Auto Save Prompt
-// @namespace    http://tampermonkey.net/
-// @version      0.2 // 版本号递增
-// @description  Automatically clicks the "Save prompt" button every 20 seconds if it's clickable on Google AI Studio.
-// @match        https://aistudio.google.com/prompts/* // 请根据实际页面URL调整此匹配模式
-// @grant        none
-// ==/UserScript==
 
 (function () {
   "use strict";

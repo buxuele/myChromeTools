@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "myChromeTools",
+  "name": "aiTools",
   "description": "A toolbox for automating actions on specific websites",
   "version": "1.0",
   "permissions": [
@@ -59,6 +59,11 @@
     {
       "matches": ["https://aistudio.google.com/prompts/*"],
       "js": ["gemini_auto_save.js"]
+    },
+    {
+      "matches": ["https://www.zhihu.com/*", "https://zhuanlan.zhihu.com/p/*"],
+      "js": ["zhihu_hide_svg.js"],
+      "run_at": "document_idle"
     }
   ]
  
