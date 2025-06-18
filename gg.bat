@@ -43,4 +43,3 @@ git status
 
 :: 提示操作完成
 echo 代码已提交并推送完成！
-pause
