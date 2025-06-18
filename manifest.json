@@ -59,12 +59,8 @@
     {
       "matches": ["https://aistudio.google.com/prompts/*"],
       "js": ["gemini_auto_save.js"]
-    },
-    {
-      "matches": ["https://www.zhihu.com/*", "https://zhuanlan.zhihu.com/p/*"],
-      "js": ["zhihu_hide_svg.js"],
-      "run_at": "document_idle"
     }
+    
   ]
  
 }
