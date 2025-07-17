@@ -1,23 +1,52 @@
 /*
  * gemini_ui_optimizer.css
- * 目的：隐藏 Google AI Studio (Gemini) 页面顶部的 header，以获得更多编辑空间。
+ * 版本 2.0: 优化 Google AI Studio (Gemini) 界面
+ *
+ * 变更日志:
+ * v1.0: 隐藏了顶部的 <ms-header-root>
+ * v2.0: 
+ *   - 不再完全隐藏 <ms-header-root>，因为它会破坏布局。
+ *   - 针对性地隐藏 <ms-header-root> 内不需要的子元素。
+ *   - 将 <ms-toolbar> 的高度压缩，并使用 flexbox 重新对齐内部按钮。
 */
 
-/* 
-  这个选择器会精准地找到你想要隐藏的那个顶栏的根元素。
-  `ms-header-root` 是这个组件的根标签，非常稳定，是最佳选择。
-*/
-ms-header-root {
+/* 1. 隐藏最顶层的全局导航栏 (Get API Key, Studio, Dashboard...) */
+ms-header-root .top-nav {
     display: none !important;
 }
 
-/* 
-  可选：由于顶部栏被隐藏，主内容区域可能需要调整一下上边距，
-  让它更贴近顶部。你可以通过审查元素找到主内容区的 class 来进行微调。
-  下面的选择器是一个示例，你需要根据实际情况修改。
-*/
-/*
-.main-content, .page-container, .whatever-its-class-is {
-    padding-top: 10px !important;
+/* 2. 隐藏全局导航栏旁边的设置和账户图标 */
+ms-header-root ms-settings-menu,
+ms-header-root alkali-accountswitcher {
+    display: none !important;
 }
-*/
+
+/* 3. 隐藏次级导航栏（模型选择器那一行） */
+ms-header-root prompt-header {
+    display: none !important;
+}
+
+/* 4. 核心：控制你想要保留的 <ms-toolbar> 的样式 */
+ms-toolbar {
+    /* 
+     * 将高度设置为一个很小的值，比如 28px。
+     * 使用 calc(var(--原本高度) * 0.3) 比较复杂，直接设置一个固定值更简单有效。
+     * 你可以根据喜好调整这个值，比如 24px 或 32px。
+     */
+    height: 28px !important;
+    min-height: 28px !important;
+    padding: 0 16px !important; /* 调整一下内边距，让它看起来不那么挤 */
+}
+
+/* 5. 使用 Flexbox 重新对齐 toolbar 内部的按钮，让它们在新的高度下垂直居中 */
+ms-toolbar .toolbar-container {
+    display: flex !important;
+    align-items: center !important; /* 垂直居中 */
+    height: 100% !important;
+}
+
+/* 6. (可选) 如果你觉得标题文字太大了，可以把它改小一点 */
+ms-toolbar .page-title h1 {
+    font-size: 1rem !important; /* 将字体大小改为 16px */
+    margin: 0 !important; /* 去掉多余的边距 */
+}
