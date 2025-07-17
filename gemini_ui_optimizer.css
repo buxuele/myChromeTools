@@ -1,0 +1,23 @@
+/*
+ * gemini_ui_optimizer.css
+ * 目的：隐藏 Google AI Studio (Gemini) 页面顶部的 header，以获得更多编辑空间。
+*/
+
+/* 
+  这个选择器会精准地找到你想要隐藏的那个顶栏的根元素。
+  `ms-header-root` 是这个组件的根标签，非常稳定，是最佳选择。
+*/
+ms-header-root {
+    display: none !important;
+}
+
+/* 
+  可选：由于顶部栏被隐藏，主内容区域可能需要调整一下上边距，
+  让它更贴近顶部。你可以通过审查元素找到主内容区的 class 来进行微调。
+  下面的选择器是一个示例，你需要根据实际情况修改。
+*/
+/*
+.main-content, .page-container, .whatever-its-class-is {
+    padding-top: 10px !important;
+}
+*/
