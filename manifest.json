@@ -9,7 +9,7 @@
     "scripting",
     "downloads",
     "tabs",
-    "clipboardWrite"  
+    "clipboardWrite"
   ],
   "commands": {
     "insert-text": {
@@ -42,7 +42,7 @@
   "content_scripts": [
     {
       "matches": ["https://x.com/i/grok"],
-      "js":  ["turndown.js", "grok_content.js"]  
+      "js": ["turndown.js", "grok_content.js"]
     },
     {
       "matches": ["https://i.pinimg.com/*"],
@@ -58,9 +58,12 @@
     },
     {
       "matches": ["https://aistudio.google.com/prompts/*"],
+      "css": ["gemini_ui_optimizer.css"],   
       "js": ["gemini_auto_save.js"]
+    },
+    {
+      "matches": ["https://medium.com/*"],
+      "js": ["medium_content.js"]
     }
-    
   ]
- 
 }
