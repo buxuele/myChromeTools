@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "aiTools",
-  "description": "A toolbox for automating actions on specific websites",
+  "description": "网站增强工具集 - 为特定网站提供自动化功能",
   "version": "1.0",
   "permissions": [
     "storage",
@@ -52,18 +52,31 @@
       "matches": ["https://grok.com/*"],
       "js": ["grok_insert_text.js"]
     },
-    {
-      "matches": ["<all_urls>"],
-      "js": ["scroll_control.js"]
+   {
+      "matches": ["https://chatgpt.com/c/*"],
+      "js": ["chatgpt_enhancer.js"]
     },
+
     {
       "matches": ["https://aistudio.google.com/prompts/*"],
-      "css": ["gemini_ui_optimizer.css"],   
-      "js": ["gemini_auto_save.js"]
+      "css": [
+        "gemini_ui_optimizer.css"
+       
+        ],
+      "js": [
+        "gemini_auto_save.js",
+        "gemini_link_fixer.js"  
+        
+      ]
     },
+
     {
       "matches": ["https://medium.com/*"],
       "js": ["medium_content.js"]
+    },
+    {
+      "matches": ["https://www.reddit.com/media*"],
+      "js": ["reddit_imgs.js"]
     }
   ]
 }
