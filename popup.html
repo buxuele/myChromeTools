@@ -1,12 +1,8 @@
 <!DOCTYPE html>
- 
-
-<!-- 处理中文。 -->
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-
-    <title>Auto Scroll Control</title>
+    <title>AI Tools</title>
     <style>
         body {
             width: 350px;
@@ -17,7 +13,7 @@
 
         .container {
             background-color: white;
-            padding: 5px;
+            padding: 15px;
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
@@ -49,82 +45,83 @@
             border-radius: 5px;
         }
 
-        .button-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+        .feature-list {
             margin-top: 15px;
         }
 
-        button {
-            padding: 10px 15px;
-            border: none;
+        .feature-item {
+            padding: 10px;
+            margin: 8px 0;
+            background-color: #f8f9fa;
             border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            font-weight: 500;
+            border-left: 4px solid #4CAF50;
         }
 
-        .scroll-btn {
+        .feature-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .feature-desc {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
             background-color: #4CAF50;
             color: white;
-        }
-
-        .scroll-btn:hover {
-            background-color: #45a049;
-        }
-
-        .stop-btn {
-            background-color: #f44336;
-            color: white;
-            grid-column: span 2;
-        }
-
-        .stop-btn:hover {
-            background-color: #da190b;
-        }
-
-        .active {
-            background-color: #2196F3;
-        }
-
-        .auto-refresh-btn {
-            background-color: #9C27B0;
-            color: white;
-            grid-column: span 2;
-        }
-
-        .auto-refresh-btn:hover {
-            background-color: #7B1FA2;
-        }
-
-        .auto-refresh-btn.active {
-            background-color: #673AB7;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <img src="images/g1.png" alt="scroll-icon">
-            <h3>自动滚动控制</h3>
+            <img src="images/g1.png" alt="ai-tools-icon">
+            <h3>AI Tools</h3>
         </div>
         
         <div class="domain-info">
             当前网站: <span id="currentDomain"></span>
         </div>
 
-        <div class="button-group">
-            <button id="normalSpeedBtn" class="scroll-btn">正常速度</button>
-            <button id="doubleSpeedBtn" class="scroll-btn">2倍速度</button>
-            <button id="fiveSpeedBtn" class="scroll-btn">5倍速度</button>
-            <button id="autoRefreshBtn" class="auto-refresh-btn active">自动刷新: 开启</button>
-            <button id="stopScrollButton" class="stop-btn">停止滚动</button>
+        <div class="feature-list">
+            <div class="feature-item">
+                <div class="feature-title">Grok 增强 <span class="status">活跃</span></div>
+                <div class="feature-desc">支持内容导出和快捷输入 (Ctrl+Q)</div>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-title">ChatGPT 增强 <span class="status">活跃</span></div>
+                <div class="feature-desc">提供对话增强功能</div>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-title">Gemini 优化 <span class="status">活跃</span></div>
+                <div class="feature-desc">UI优化和自动保存功能</div>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-title">Pinterest 下载 <span class="status">活跃</span></div>
+                <div class="feature-desc">支持图片批量下载</div>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-title">Medium 增强 <span class="status">活跃</span></div>
+                <div class="feature-desc">阅读体验优化</div>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-title">Reddit 增强 <span class="status">活跃</span></div>
+                <div class="feature-desc">在媒体页面显示"获取原图"按钮，点击在新标签页打开原图</div>
+            </div>
         </div>
     </div>
 
     <script src="popup.js"></script>
-
 </body>
 </html>
