@@ -6,7 +6,11 @@ document.addEventListener('DOMContentLoaded', function () {
         if (tabs[0]) {
             try {
                 const url = new URL(tabs[0].url);
-                currentDomain.textContent = url.hostname;
+                const hostname = url.hostname;
+                currentDomain.textContent = hostname;
+                
+                // 根据当前网站高亮相关功能
+                // highlightRelevantFeatures(hostname);
             } catch (error) {
                 currentDomain.textContent = '无法获取域名';
             }
