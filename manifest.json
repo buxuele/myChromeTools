@@ -23,13 +23,11 @@
   "background": {
     "service_worker": "background.js"
   },
-
   "icons": {
     "16": "/images/icon16_active.png",
     "48": "/images/icon48_active.png",
     "128": "/images/icon128_active.png"
   },
-
   "action": {
     "default_icon": {
       "16": "/images/icon16_active.png",
@@ -38,45 +36,22 @@
     },
     "default_popup": "popup.html"
   },
-
   "content_scripts": [
-    {
-      "matches": ["https://x.com/i/grok"],
-      "js": ["turndown.js", "grok_content.js"]
-    },
     {
       "matches": ["https://i.pinimg.com/*"],
       "js": ["pinterest_content.js"]
     },
     {
-      "matches": ["https://grok.com/*"],
-      "js": ["grok_insert_text.js"]
-    },
-   {
       "matches": ["https://chatgpt.com/c/*"],
       "js": ["chatgpt_enhancer.js"]
     },
-
-    {
-      "matches": ["https://aistudio.google.com/prompts/*"],
-      "css": [
-        "gemini_ui_optimizer.css"
-       
-        ],
-      "js": [
-        "gemini_auto_save.js",
-        "gemini_link_fixer.js"  
-        
-      ]
-    },
-
     {
       "matches": ["https://medium.com/*"],
       "js": ["medium_content.js"]
     },
     {
-      "matches": ["https://www.reddit.com/media*"],
-      "js": ["reddit_imgs.js"]
+      "matches": ["https://speed.measurementlab.net/*"],
+      "js": ["speed_lab.js"]
     }
   ]
 }
