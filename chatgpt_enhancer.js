@@ -12,9 +12,46 @@
   ];
 
   /**
+   * 隐藏浮动的"询问 ChatGPT"按钮
+   */
+  function hideFloatingAskButton() {
+    // 方法1: 隐藏所有 fixed + select-none 的 div
+    const floatingDivs = document.querySelectorAll("div.fixed.select-none");
+
+    floatingDivs.forEach((div) => {
+      const text = div.textContent?.trim() || "";
+      if (BUTTON_TEXTS_TO_HIDE.some((hideText) => text.includes(hideText))) {
+        div.style.display = "none !important";
+        div.style.visibility = "hidden !important";
+        div.style.opacity = "0 !important";
+        div.style.pointerEvents = "none !important";
+        console.log("[aiTools] 隐藏了浮动按钮:", text.substring(0, 30));
+      }
+    });
+
+    // 方法2: 通过 style 属性查找 fixed 定位的元素
+    const allDivs = document.querySelectorAll(
+      'div[style*="top:"], div[style*="left:"]'
+    );
+    allDivs.forEach((div) => {
+      const text = div.textContent?.trim() || "";
+      if (BUTTON_TEXTS_TO_HIDE.some((hideText) => text.includes(hideText))) {
+        div.style.display = "none !important";
+        div.style.visibility = "hidden !important";
+        div.style.opacity = "0 !important";
+        div.style.pointerEvents = "none !important";
+        console.log("[aiTools] 通过位置隐藏了浮动按钮");
+      }
+    });
+  }
+
+  /**
    * 查找并隐藏目标按钮
    */
   function findAndHideButton() {
+    // 隐藏浮动按钮
+    hideFloatingAskButton();
+
     // 通过文本内容查找所有可能的按钮元素
     const allButtons = document.querySelectorAll(
       'button, div[role="button"], a[role="button"], span[role="button"]'
@@ -115,6 +152,29 @@
   }
 
   /**
+   * 使用 MutationObserver 监控动态添加的浮动按钮
+   */
+  function observeFloatingButtons() {
+    const observer = new MutationObserver(() => {
+      // 每次 DOM 变化时都检查并隐藏浮动按钮
+      hideFloatingAskButton();
+    });
+
+    observer.observe(document.body || document.documentElement, {
+      childList: true,
+      subtree: true,
+    });
+
+    console.log("[aiTools] ChatGPT 浮动按钮监控已启动");
+
+    // 30秒后停止监控（延长时间以确保捕获所有动态元素）
+    setTimeout(() => {
+      observer.disconnect();
+      console.log("[aiTools] ChatGPT 浮动按钮监控已停止");
+    }, 30000);
+  }
+
+  /**
    * 添加CSS样式
    */
   function addCSS() {
@@ -155,17 +215,37 @@
     }
   }
 
-  // 初始化函数 - 只执行一次
+  // 初始化函数
   function init() {
     findAndHideButton();
     adjustChatGPTInputHeight();
     addCSS();
+    observeFloatingButtons();
   }
 
-  // 等待DOM加载完成后执行一次
+  // 等待DOM加载完成后执行
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
   } else {
     init();
   }
+
+  // 页面完全加载后再次检查
+  window.addEventListener("load", () => {
+    setTimeout(() => {
+      findAndHideButton();
+      console.log("[aiTools] 页面加载完成后再次隐藏 ChatGPT 浮动按钮");
+    }, 1000);
+  });
+
+  // 定期检查（前5秒每500ms检查一次）
+  let checkCount = 0;
+  const intervalId = setInterval(() => {
+    hideFloatingAskButton();
+    checkCount++;
+    if (checkCount >= 10) {
+      clearInterval(intervalId);
+      console.log("[aiTools] 停止定期检查浮动按钮");
+    }
+  }, 500);
 })();
