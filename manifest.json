@@ -28,7 +28,6 @@
     "default_popup": "popup.html"
   },
   "content_scripts": [
-   
     {
       "matches": ["https://i.pinimg.com/*"],
       "js": ["pinterest_content.js"]
@@ -40,17 +39,20 @@
     {
       "matches": ["https://www.behance.net/*"],
       "js": ["behance.js"],
-      "run_at": "document_end" 
+      "run_at": "document_end"
     },
 
     {
-      "matches": [
-        "https://medium.com/*", "https://levelup.gitconnected.com/"],
+      "matches": ["https://medium.com/*", "https://levelup.gitconnected.com/"],
       "js": ["medium_content.js"]
     },
     {
       "matches": ["https://speed.measurementlab.net/*"],
       "js": ["speed_lab.js"]
+    },
+    {
+      "matches": ["https://www.perplexity.ai/*"],
+      "js": ["perplexity_content.js"]
     }
   ]
 }

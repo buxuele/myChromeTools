@@ -1,4 +1,13 @@
 
+### 12.25
+增加内容
+对https://www.perplexity.ai 这个网站
+隐藏所有的这个元素
+
+<div class="absolute z-[5]" style="top: 428.133px; left: 112.392px;"> 
+
+class="absolute z-[5]"
+
 
 ### 10.9 增加 behance 
 https://www.behance.net/galleries/best-of-behance
