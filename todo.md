@@ -1,29 +1,33 @@
-### 8.23 ✅ 已完成 - Speed Measurement Lab 自动勾选功能
 
-对这个网站 https://speed.measurementlab.net/#/ 每次打开这个网页，自动勾选隐私政策 checkbox。
 
-**实现详情：**
+### 10.9 增加 behance 
+https://www.behance.net/galleries/best-of-behance
 
-- 新增了 `speed_measurementlab_content.js` 文件
-- 更新了 `manifest.json` 添加对应的 content script 配置
-- 支持多种查找策略确保兼容性：
-  - 通过 ID `#demo-human` 查找
-  - 通过 name 属性 `demo-human` 查找
-  - 通过 ng-model `privacyConsent` 查找
-  - 通过包含隐私政策文本的 label 查找
-- 使用 MutationObserver 监控动态加载的元素
-- 触发多种事件确保 Angular 应用能检测到变化
 
-**目标元素：**
+### 调整亮度。这个不要了
+太卡了
 
-```html
-<input
-  type="checkbox"
-  id="demo-human"
-  name="demo-human"
-  ng-model="privacyConsent"
-/>
-```
+{
+    "matches": ["<all_urls>"],
+    "js": ["brightness_controller.js"]
+},
+
+
+
+### 8.24
+- todo 对微博图片进行，自动下载。即点击一个图片的详情页面
+
+能自动替换为原始大小尺寸的图片
+而且注意有多种情况，包括:
+img4
+img1 
+如果其中一个请求成功，即，下载成功了，那么就停止。 
+
+
+
+
+### 8.23 完成 - Speed Measurement Lab 自动勾选功能
+ 
 
 ### 8.15 拆分功能。 把滚动功能，单独拆分出去。
 
