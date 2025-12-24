@@ -11,15 +11,6 @@
     "tabs",
     "clipboardWrite"
   ],
-  "commands": {
-    "insert-text": {
-      "suggested_key": {
-        "default": "Ctrl+Q",
-        "mac": "Command+Shift+G"
-      },
-      "description": "在 grok.com 的对话框中输入预设文字"
-    }
-  },
   "background": {
     "service_worker": "background.js"
   },
@@ -37,16 +28,24 @@
     "default_popup": "popup.html"
   },
   "content_scripts": [
+   
     {
       "matches": ["https://i.pinimg.com/*"],
       "js": ["pinterest_content.js"]
     },
     {
-      "matches": ["https://chatgpt.com/c/*"],
+      "matches": ["https://chatgpt.com/*"],
       "js": ["chatgpt_enhancer.js"]
     },
     {
-      "matches": ["https://medium.com/*"],
+      "matches": ["https://www.behance.net/*"],
+      "js": ["behance.js"],
+      "run_at": "document_end" 
+    },
+
+    {
+      "matches": [
+        "https://medium.com/*", "https://levelup.gitconnected.com/"],
       "js": ["medium_content.js"]
     },
     {
