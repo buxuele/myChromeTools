@@ -1,20 +1,22 @@
 (function () {
   "use strict";
 
-  // 要隐藏的按钮文字（支持多种语言和变体）
-  const BUTTON_TEXTS_TO_HIDE = [
-    "询问 ChatGPT",
-    "Ask ChatGPT",
-    "ChatGPT",
-    "问 ChatGPT",
-    "Ask AI",
-    "AI助手",
-  ];
+  // 检查是否在 ChatGPT 官网上
+  const isOnChatGPTSite = window.location.hostname.includes("chatgpt.com");
+
+  // 要隐藏的按钮文字（更精确的匹配，避免误伤）
+  // 只匹配明确的第三方浮动按钮文字
+  const BUTTON_TEXTS_TO_HIDE = ["询问 ChatGPT", "Ask ChatGPT", "问 ChatGPT"];
 
   /**
-   * 隐藏浮动的"询问 ChatGPT"按钮
+   * 隐藏浮动的"询问 ChatGPT"按钮（只在非 ChatGPT 官网上执行）
    */
   function hideFloatingAskButton() {
+    // 在 ChatGPT 官网上不执行隐藏逻辑
+    if (isOnChatGPTSite) {
+      return;
+    }
+
     // 方法1: 隐藏所有 fixed + select-none 的 div
     const floatingDivs = document.querySelectorAll("div.fixed.select-none");
 
@@ -46,9 +48,14 @@
   }
 
   /**
-   * 查找并隐藏目标按钮
+   * 查找并隐藏目标按钮（只在非 ChatGPT 官网上执行）
    */
   function findAndHideButton() {
+    // 在 ChatGPT 官网上不执行隐藏逻辑
+    if (isOnChatGPTSite) {
+      return;
+    }
+
     // 隐藏浮动按钮
     hideFloatingAskButton();
 
@@ -58,42 +65,40 @@
     );
     for (const button of allButtons) {
       const text = button.textContent?.trim() || "";
-      if (BUTTON_TEXTS_TO_HIDE.some((hideText) => text.includes(hideText))) {
+      // 使用精确匹配，避免误伤
+      if (
+        BUTTON_TEXTS_TO_HIDE.some(
+          (hideText) => text === hideText || text.startsWith(hideText)
+        )
+      ) {
         button.style.display = "none !important";
         button.style.visibility = "hidden !important";
         button.style.opacity = "0 !important";
       }
     }
 
-    // 隐藏常见的弹出框容器
-    const popupSelectors = [
-      '[class*="popup"]',
-      '[class*="tooltip"]',
-      '[class*="floating"]',
-      '[class*="overlay"]',
-      '[id*="chatgpt"]',
-      '[class*="chatgpt"]',
-      '[data-testid*="chatgpt"]',
-    ];
+    // 只隐藏明确标记为第三方扩展的弹出框
+    const popupSelectors = ['[data-extension*="chatgpt"]'];
 
     for (const selector of popupSelectors) {
       const elements = document.querySelectorAll(selector);
       for (const element of elements) {
-        const text = element.textContent?.trim() || "";
-        if (BUTTON_TEXTS_TO_HIDE.some((hideText) => text.includes(hideText))) {
-          element.style.display = "none !important";
-          element.style.visibility = "hidden !important";
-        }
+        element.style.display = "none !important";
+        element.style.visibility = "hidden !important";
       }
     }
 
-    // 隐藏可能的浮动按钮
+    // 隐藏可能的浮动按钮（只匹配精确文本）
     const fixedElements = document.querySelectorAll(
       '[style*="position: fixed"], [style*="position:fixed"]'
     );
     for (const element of fixedElements) {
       const text = element.textContent?.trim() || "";
-      if (BUTTON_TEXTS_TO_HIDE.some((hideText) => text.includes(hideText))) {
+      if (
+        BUTTON_TEXTS_TO_HIDE.some(
+          (hideText) => text === hideText || text.startsWith(hideText)
+        )
+      ) {
         element.style.display = "none !important";
       }
     }
@@ -155,6 +160,11 @@
    * 使用 MutationObserver 监控动态添加的浮动按钮
    */
   function observeFloatingButtons() {
+    // 在 ChatGPT 官网上不需要监控浮动按钮
+    if (isOnChatGPTSite) {
+      return;
+    }
+
     const observer = new MutationObserver(() => {
       // 每次 DOM 变化时都检查并隐藏浮动按钮
       hideFloatingAskButton();
@@ -165,12 +175,12 @@
       subtree: true,
     });
 
-    console.log("[aiTools] ChatGPT 浮动按钮监控已启动");
+    console.log("[aiTools] 第三方 ChatGPT 浮动按钮监控已启动");
 
     // 30秒后停止监控（延长时间以确保捕获所有动态元素）
     setTimeout(() => {
       observer.disconnect();
-      console.log("[aiTools] ChatGPT 浮动按钮监控已停止");
+      console.log("[aiTools] 第三方 ChatGPT 浮动按钮监控已停止");
     }, 30000);
   }
 
@@ -180,35 +190,40 @@
   function addCSS() {
     const style = document.createElement("style");
     style.id = "aitools-chatgpt-enhancer";
-    style.textContent = `
-      /* 隐藏ChatGPT相关弹出元素 */
-      *[data-extension*="chatgpt"],
-      *[data-testid*="chatgpt"],
-      *[aria-label*="ChatGPT"],
-      *[title*="ChatGPT"],
-      *[id*="chatgpt"],
-      *[class*="chatgpt"],
-      *[aria-label*="AI助手"],
-      *[title*="AI助手"] {
-        display: none !important;
-        visibility: hidden !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-      }
 
-      /* 强制设置输入框高度为100px */
-      #prompt-textarea,
-      div.ProseMirror[contenteditable="true"],
-      div[class*="_prosemirror-parent_"],
-      div[class*="prosemirror-parent"],
-      div[contenteditable="true"][data-virtualkeyboard="true"],
-      div[contenteditable="true"][translate="no"] {
-        height: 100px !important;
-        min-height: 100px !important;
-        max-height: 100px !important;
-      }
+    // 只在非 ChatGPT 官网上添加隐藏第三方扩展的 CSS
+    let cssContent = "";
 
-    `;
+    if (!isOnChatGPTSite) {
+      cssContent += `
+        /* 只隐藏第三方扩展注入的 ChatGPT 相关元素 */
+        *[data-extension*="chatgpt"] {
+          display: none !important;
+          visibility: hidden !important;
+          opacity: 0 !important;
+          pointer-events: none !important;
+        }
+      `;
+    }
+
+    // ChatGPT 官网的输入框高度调整
+    if (isOnChatGPTSite) {
+      cssContent += `
+        /* 强制设置输入框高度为100px */
+        #prompt-textarea,
+        div.ProseMirror[contenteditable="true"],
+        div[class*="_prosemirror-parent_"],
+        div[class*="prosemirror-parent"],
+        div[contenteditable="true"][data-virtualkeyboard="true"],
+        div[contenteditable="true"][translate="no"] {
+          height: 100px !important;
+          min-height: 100px !important;
+          max-height: 100px !important;
+        }
+      `;
+    }
+
+    style.textContent = cssContent;
 
     if (!document.getElementById("aitools-chatgpt-enhancer")) {
       document.head.appendChild(style);
@@ -234,18 +249,22 @@
   window.addEventListener("load", () => {
     setTimeout(() => {
       findAndHideButton();
-      console.log("[aiTools] 页面加载完成后再次隐藏 ChatGPT 浮动按钮");
+      if (!isOnChatGPTSite) {
+        console.log("[aiTools] 页面加载完成后再次检查第三方 ChatGPT 浮动按钮");
+      }
     }, 1000);
   });
 
-  // 定期检查（前5秒每500ms检查一次）
-  let checkCount = 0;
-  const intervalId = setInterval(() => {
-    hideFloatingAskButton();
-    checkCount++;
-    if (checkCount >= 10) {
-      clearInterval(intervalId);
-      console.log("[aiTools] 停止定期检查浮动按钮");
-    }
-  }, 500);
+  // 定期检查（前5秒每500ms检查一次，只在非 ChatGPT 官网上执行）
+  if (!isOnChatGPTSite) {
+    let checkCount = 0;
+    const intervalId = setInterval(() => {
+      hideFloatingAskButton();
+      checkCount++;
+      if (checkCount >= 10) {
+        clearInterval(intervalId);
+        console.log("[aiTools] 停止定期检查浮动按钮");
+      }
+    }, 500);
+  }
 })();
