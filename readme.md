@@ -1,70 +1,106 @@
+# aiTools - 网站增强工具集
 
+为特定网站提供自动化功能和个性化操作的浏览器扩展。
 
+## 功能列表
 
-# 修改内容
-- 把原来的 content.js 拆分为4个文件，方便单独管理， 以及后面的拓展。
-- 以后再新增功能， 先在 manifest.json  matches 中增加配置， 然后新建一个js
+### ChatGPT (chatgpt.com)
+- **输入框高度调整**：将输入框固定为 100px 高度，方便输入长文本
+- **快捷提示词按钮**：在输入框上方显示常用提示词按钮
+  - 读文章：快速插入文章阅读和短评提示词
+  - 写推特：插入推特写作风格提示词
+  - 小步骤：插入分步指导提示词
+  - 搜项目：插入 GitHub 项目搜索提示词
+- **隐藏第三方浮动按钮**：在非 ChatGPT 官网上隐藏第三方扩展的"询问 ChatGPT"浮动按钮
 
+### Pinterest (i.pinimg.com)
+- **自动下载原始尺寸图片**：自动将 736x 或 1200x 替换为 originals，下载原始高清图片
 
-# 文件的作用
-- manifest.json 是入口，所有其他文件的运行都依赖于它的配置。
-- background.js  
+### Behance (behance.net)
+- 网站增强功能
 
+### Medium (medium.com)
+- **隐藏文本选择菜单**：自动隐藏 Medium 的文本选择弹出菜单（强调、回应、分享等按钮）
 
-# 目的
-此项目，某些特定网站上，进行特别的操作。 个性化操作。
+### Perplexity (perplexity.ai)
+- 网站增强功能
 
-聊天记录:
+### 知乎专栏 (zhuanlan.zhihu.com)
+- 网站增强功能
 
-https://x.com/i/grok?conversation=1922691362044117397
+### 老钱博客 (lao-qian.hxwk.org)
+- **暗色阅读背景**：自动应用 #91b3b5 背景色，提供更舒适的阅读体验
 
+### Speed Test (speed.measurementlab.net)
+- 网站增强功能
 
-# 新增：
-- 自动下载原始尺寸的图片 https://ca.pinterest.com/
-- 那么就把  736x 或 1200x， 自动替换为 originals
+## 项目结构
 
+```
+├── manifest.json           # 扩展配置入口
+├── background.js          # 后台服务
+├── chatgpt_enhancer.js    # ChatGPT 增强功能
+├── pinterest_content.js   # Pinterest 图片下载
+├── behance.js            # Behance 增强
+├── medium_content.js     # Medium 菜单隐藏
+├── perplexity_content.js # Perplexity 增强
+├── zhihu_content.js      # 知乎增强
+├── laoqian_content.js    # 老钱博客背景
+├── speed_lab.js          # Speed Test 增强
+└── images/               # 图标资源
+```
 
-1. 增加输入框的高度，可以增加 25px
-2. 光标自动聚集在输入框内
+## 安装方法
 
+1. 克隆或下载此项目
+2. 打开 Chrome 浏览器，访问 `chrome://extensions/`
+3. 开启右上角的"开发者模式"
+4. 点击"加载已解压的扩展程序"
+5. 选择项目文件夹
 
-### 生成图片， icon 
-https://chatgpt.com/c/6824c447-bcb4-8002-a576-4e72aa876c2d
+## 开发说明
 
-要求如下：
-1. **图标风格偏好**： 积极向上。 
-2. **是否希望包含字母**： 写上工具2个字。
-3. **配色喜好**： 彩色，我喜欢彩虹色，即多种颜色。
-4. **是否希望图中有工具元素**：如螺丝刀、扳手、工具箱图案， 很合适
-5. **是否有图标尺寸需求**： 512×512 
+### 添加新功能
 
+1. 在 `manifest.json` 的 `content_scripts` 中添加新的配置：
+```json
+{
+  "matches": ["https://example.com/*"],
+  "js": ["example_content.js"]
+}
+```
 
-# 创建项目的步骤
-1. 新建一个 manifest.json 文件, 填入一些信息。
-"manifest_version": 3,  # 2 已经被废弃了。
-2. 新建图片文件夹，准备图片
-3. 打开：chrome://extensions/， 上传 插件文件夹
+2. 创建对应的 JS 文件（如 `example_content.js`）
+3. 实现具体功能逻辑
 
+### manifest.json 配置说明
 
-### manifest.json 内容
+#### matches 用法
+- `"matches": ["https://www.google.com/*"]` - 限定某个域名
+- `"matches": ["*://*/*"]` - 所有网站
+- `"matches": ["<all_urls>"]` - 所有网站
 
-#### 1. matches 的用法
-- "matches": ["https://www.google.com/*"], 只限定某个域名
-- "matches": ["*://*/*"], 全部的网站。
-- "matches": ["<all_urls>"], 全部的网站。
+#### run_at 选项
+- `"document_start"` - 文档开始加载时
+- `"document_end"` - DOM 加载完成时
+- `"document_idle"` - 页面空闲时（默认）
 
+## 技术栈
 
-### 2. "run_at": 有以下几种值
-- "document_start"
-- "document_end"
-- "document_idle"
+- Manifest V3
+- 原生 JavaScript
+- Chrome Extension API
 
-sublime 的默认背景颜色是 
-bg:
-#303841
-rgba(48,56,65,255)
+## 更新日志
 
-text:
-#d8dfea
-rgba(216,223,234,255)
+- 添加 ChatGPT 快捷提示词按钮功能
+- 添加老钱博客暗色背景支持
+- 拆分 content.js 为多个独立文件，便于管理和扩展
+- 支持 Pinterest 原始图片下载
+- 支持 Medium 文本选择菜单隐藏
 
+## 参考资料
+
+聊天记录: https://x.com/i/grok?conversation=1922691362044117397
+
+图标生成: https://chatgpt.com/c/6824c447-bcb4-8002-a576-4e72aa876c2d
