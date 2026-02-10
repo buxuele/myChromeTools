@@ -1,0 +1,255 @@
+/* Hacker News Clone Styling - 与原app完全一致的样式 */
+
+/* Nunito Bold 字体定义 */
+@font-face {
+  font-family: "Nunito";
+  src: url(chrome-extension://__MSG_@@extension_id__/Nunito-fonts/Nunito-Bold.ttf)
+    format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Reset and base styles with Nunito Bold 700 圆体字体 */
+* {
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  /* 禁用所有动画和过渡效果 */
+  animation: none !important;
+  transition: none !important;
+  transform: none !important;
+  /* 全局 Nunito Bold 700 圆体字体强制应用 */
+  font-family: "Nunito", sans-serif !important;
+  font-weight: 700 !important;
+  font-style: normal !important;
+}
+
+/* Google Fonts - Nunito and Roboto are loaded via HTML link tags */
+
+body {
+  font-family: "Nunito", sans-serif !important;
+  font-size: 15pt !important; /* 增大150%: 10pt * 1.5 = 15pt */
+  color: #000000 !important;
+  background-color: #f6f6ef !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.4 !important; /* 增加行高提高可读性 */
+  font-weight: 700 !important;
+  font-style: normal !important;
+}
+
+/* Main table styling */
+#hnmain {
+  background-color: #f6f6ef !important;
+}
+
+table {
+  border-collapse: collapse !important;
+}
+
+td {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Header styling */
+.pagetop {
+  font-family: "Nunito", sans-serif !important;
+  font-size: 15pt !important; /* 增大150%: 10pt * 1.5 = 15pt */
+  font-weight: 700 !important; /* Nunito Bold 700 for header */
+  font-style: normal !important;
+  color: #000000 !important;
+}
+
+.pagetop a {
+  color: #000000 !important;
+  text-decoration: none !important;
+}
+
+.pagetop a:hover {
+  text-decoration: underline !important;
+}
+
+.hnname {
+  margin-right: 10px !important;
+}
+
+.hnname a {
+  color: #000000 !important;
+  text-decoration: none !important;
+}
+
+/* Story list styling */
+.athing {
+  background-color: #f6f6ef !important;
+}
+
+.title {
+  padding-right: 4px !important;
+}
+
+.rank {
+  font-family: "Nunito", sans-serif !important;
+  font-size: 15pt !important; /* 增大150%: 10pt * 1.5 = 15pt */
+  font-weight: 700 !important; /* Nunito Bold 700 for rank numbers */
+  font-style: normal !important;
+  text-align: right !important;
+  color: #828282 !important;
+  padding-right: 6px !important; /* 增加间距 */
+}
+
+.votelinks {
+  width: 14px !important;
+  text-align: center !important;
+  padding-right: 4px !important;
+}
+
+.votearrow {
+  width: 10px !important;
+  height: 10px !important;
+  border: 0px !important;
+  margin: 3px 2px 6px !important;
+  background: url("data:image/gif;base64,R0lGODlhCgAKAKECAAAAAP///////////yH5BAEKAAIALAAAAAAKAAoAAAIRlI+py+0Po5y02ouz3rz7rxUAOw==")
+    no-repeat !important;
+  cursor: pointer !important;
+}
+
+.titleline {
+  font-family: "Nunito", sans-serif !important;
+  font-size: 18pt !important; /* 增大20%: 15pt * 1.2 = 18pt */
+  font-style: normal !important;
+}
+
+.titleline a {
+  color: #1d1f57 !important; /* 深蓝色字体，与翻译后的颜色一致 */
+  text-decoration: none !important;
+  font-family: "Nunito", sans-serif !important;
+  font-weight: 900 !important; /* 增加字体粗细到900，更加粗体 */
+  font-style: normal !important;
+}
+
+.titleline a:visited {
+  color: #828282 !important;
+}
+
+.titleline a:hover {
+  text-decoration: underline !important;
+}
+
+.sitebit {
+  font-family: "Nunito", sans-serif !important;
+  font-size: 12pt !important; /* 增大150%: 8pt * 1.5 = 12pt */
+  font-weight: 700 !important; /* Nunito Bold 700 for domain names */
+  font-style: normal !important;
+  color: #828282 !important;
+}
+
+.sitebit a {
+  color: #828282 !important;
+  text-decoration: none !important;
+}
+
+.sitebit a:hover {
+  text-decoration: underline !important;
+}
+
+.sitestr {
+  color: #828282 !important;
+}
+
+/* Subtext (points, author, time, comments) */
+.subtext {
+  font-family: "Nunito", sans-serif !important;
+  font-size: 10.5pt !important; /* 增大150%: 7pt * 1.5 = 10.5pt */
+  font-weight: 700 !important; /* Nunito Bold 700 for subtext */
+  font-style: normal !important;
+  color: #828282 !important;
+  padding-top: 3px !important; /* 增加上边距 */
+  padding-bottom: 8px !important; /* 增加下边距，为新闻之间创造更多空间 */
+}
+
+.subtext a {
+  color: #828282 !important;
+  text-decoration: none !important;
+}
+
+.subtext a:hover {
+  text-decoration: underline !important;
+}
+
+.score {
+  color: #828282 !important;
+}
+
+.hnuser {
+  color: #3c963c !important;
+  text-decoration: none !important;
+}
+
+.hnuser:hover {
+  text-decoration: underline !important;
+}
+
+.age a {
+  color: #828282 !important;
+  text-decoration: none !important;
+}
+
+.age a:hover {
+  text-decoration: underline !important;
+}
+
+/* Spacer rows */
+.spacer {
+  height: 15px !important; /* 增加新闻之间的间距，从5px增加到15px */
+}
+
+/* Footer styling */
+.yclinks {
+  font-family: "Nunito", sans-serif !important;
+  font-size: 12pt !important; /* 增大150%: 8pt * 1.5 = 12pt */
+  font-weight: 700 !important; /* Nunito Bold 700 for footer */
+  font-style: normal !important;
+  text-align: center !important;
+  color: #828282 !important;
+}
+
+.yclinks a {
+  color: #828282 !important;
+  text-decoration: none !important;
+}
+
+.yclinks a:hover {
+  text-decoration: underline !important;
+}
+
+/* Error and placeholder pages */
+h2 {
+  font-size: 12pt !important;
+  margin: 10px 0 !important;
+}
+
+p {
+  font-size: 10pt !important;
+  margin: 5px 0 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 750px) {
+  #hnmain {
+    width: 100% !important;
+  }
+
+  .pagetop {
+    font-size: 9pt !important;
+  }
+
+  .titleline {
+    font-size: 9pt !important;
+  }
+
+  .subtext {
+    font-size: 6pt !important;
+  }
+}
