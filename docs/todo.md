@@ -1,5 +1,23 @@
 
 
+### 2026.2.8 项目目录重构
+重构项目目录结构，解决根目录文件过多的问题：
+- 创建 `content_scripts/` 目录，存放所有内容脚本
+- 创建 `styles/` 目录，存放样式文件
+- 创建 `docs/` 目录，存放文档文件
+- 保留 .py/.bat 工具脚本在根目录
+- 更新 manifest.json 中所有内容脚本路径
+- 更新 sidepanel.html 中样式引用路径
+- 更新 readme.md 项目结构说明
+
+### 2026.2.8 合并 my_hacker_news 插件
+将独立的 my_hacker_news 插件合并到 aiTools 主扩展中：
+- 复制 hacker_news_content.js 和 hacker_news_styles.css
+- 复制 Nunito-fonts 字体目录
+- 更新 manifest.json 添加 Hacker News 配置
+- 更新 readme.md 文档
+- 合并完成后可删除 my_hacker_news 文件夹
+
 ### 2026.2.2 给chatgpt 增加一排按钮
 
 

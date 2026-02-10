@@ -34,20 +34,43 @@
 ### Speed Test (speed.measurementlab.net)
 - 网站增强功能
 
+### Hacker News (news.ycombinator.com)
+- **字体优化**：应用 Nunito 圆体字体，提升阅读体验
+- **字体大小调整**：整体字体增大 150%，标题更大更清晰
+- **间距优化**：增加新闻条目之间的间距
+- **键盘快捷键**：
+  - `J/K`：上下导航新闻条目
+  - `Enter`：打开选中的新闻
+- **自定义主题**：支持多种配色方案（默认、暗色、蓝色、绿色、紫色）
+
 ## 项目结构
 
 ```
-├── manifest.json           # 扩展配置入口
-├── background.js          # 后台服务
-├── chatgpt_enhancer.js    # ChatGPT 增强功能
-├── pinterest_content.js   # Pinterest 图片下载
-├── behance.js            # Behance 增强
-├── medium_content.js     # Medium 菜单隐藏
-├── perplexity_content.js # Perplexity 增强
-├── zhihu_content.js      # 知乎增强
-├── laoqian_content.js    # 老钱博客背景
-├── speed_lab.js          # Speed Test 增强
-└── images/               # 图标资源
+├── manifest.json              # 扩展配置入口
+├── background.js              # 后台服务
+├── popup.html / popup.js      # 弹出窗口
+├── sidepanel.html / sidepanel.js  # 侧边面板
+├── images/                    # 图标资源
+├── Nunito-fonts/              # Nunito 字体文件
+├── content_scripts/           # 内容脚本目录
+│   ├── chatgpt_enhancer.js    # ChatGPT 增强功能
+│   ├── pinterest_content.js   # Pinterest 图片下载
+│   ├── behance.js             # Behance 增强
+│   ├── medium_content.js      # Medium 菜单隐藏
+│   ├── perplexity_content.js  # Perplexity 增强
+│   ├── zhihu_content.js       # 知乎增强
+│   ├── laoqian_content.js     # 老钱博客背景
+│   ├── speed_lab.js           # Speed Test 增强
+│   ├── grok_content.js        # Grok 增强
+│   ├── guwendao_content.js    # 古文岛增强
+│   └── hacker_news/           # Hacker News 美化
+│       ├── content.js
+│       └── styles.css
+├── styles/                    # 样式文件
+│   └── sidepanel.css
+└── docs/                      # 文档
+    ├── readme.md
+    └── todo.md
 ```
 
 ## 安装方法
@@ -66,11 +89,11 @@
 ```json
 {
   "matches": ["https://example.com/*"],
-  "js": ["example_content.js"]
+  "js": ["content_scripts/example_content.js"]
 }
 ```
 
-2. 创建对应的 JS 文件（如 `example_content.js`）
+2. 在 `content_scripts/` 目录下创建对应的 JS 文件
 3. 实现具体功能逻辑
 
 ### manifest.json 配置说明
@@ -93,6 +116,7 @@
 
 ## 更新日志
 
+- 合并 Hacker News 美化插件到主扩展
 - 添加 ChatGPT 快捷提示词按钮功能
 - 添加老钱博客暗色背景支持
 - 拆分 content.js 为多个独立文件，便于管理和扩展

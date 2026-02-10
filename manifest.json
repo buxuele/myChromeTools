@@ -9,8 +9,12 @@
     "scripting",
     "downloads",
     "tabs",
-    "clipboardWrite"
+    "clipboardWrite",
+    "sidePanel"
   ],
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
   "background": {
     "service_worker": "background.js"
   },
@@ -30,41 +34,59 @@
   "content_scripts": [
     {
       "matches": ["https://i.pinimg.com/*"],
-      "js": ["pinterest_content.js"]
+      "js": ["content_scripts/pinterest_content.js"]
     },
     {
       "matches": ["https://chatgpt.com/*"],
-      "js": ["chatgpt_enhancer.js"]
+      "js": ["content_scripts/chatgpt_enhancer.js"]
     },
     {
       "matches": ["https://www.behance.net/*"],
-      "js": ["behance.js"],
+      "js": ["content_scripts/behance.js"],
       "run_at": "document_end"
     },
-
     {
       "matches": ["https://medium.com/*", "https://levelup.gitconnected.com/"],
-      "js": ["medium_content.js"]
+      "js": ["content_scripts/medium_content.js"]
     },
     {
       "matches": ["https://speed.measurementlab.net/*"],
-      "js": ["speed_lab.js"]
+      "js": ["content_scripts/speed_lab.js"]
     },
     {
       "matches": ["https://www.perplexity.ai/*"],
-      "js": ["perplexity_content.js"]
+      "js": ["content_scripts/perplexity_content.js"]
     },
     {
       "matches": ["https://zhuanlan.zhihu.com/*"],
-      "js": ["zhihu_content.js"]
+      "js": ["content_scripts/zhihu_content.js"]
     },
     {
       "matches": ["http://lao-qian.hxwk.org/*"],
-      "js": ["laoqian_content.js"]
+      "js": ["content_scripts/laoqian_content.js"]
     },
     {
       "matches": ["https://www.guwendao.net/*"],
-      "js": ["guwendao_content.js"]
+      "js": ["content_scripts/guwendao_content.js"]
+    },
+    {
+      "matches": ["https://x.com/i/grok*"],
+      "js": ["content_scripts/grok_content.js"]
+    },
+    {
+      "matches": ["https://news.ycombinator.com/*"],
+      "css": ["content_scripts/hacker_news/styles.css"],
+      "js": ["content_scripts/hacker_news/content.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "Nunito-fonts/Nunito-Bold.ttf",
+        "Nunito-fonts/Nunito-SemiBold.ttf"
+      ],
+      "matches": ["https://news.ycombinator.com/*"]
     }
   ]
 }
