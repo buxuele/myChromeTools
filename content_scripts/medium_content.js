@@ -3,6 +3,14 @@
 (function () {
   "use strict";
 
+  // 获取配置
+  async function getConfig() {
+    if (typeof AIToolsUtils !== 'undefined') {
+      return await AIToolsUtils.getSettings();
+    }
+    return null;
+  }
+
   // 隐藏Medium文本选择菜单的CSS样式
   function addHideMenuStyles() {
     const style = document.createElement("style");
@@ -33,15 +41,11 @@
       }
     `;
 
-    // 将样式添加到head中
     if (document.head) {
       document.head.appendChild(style);
-      console.log("Medium文本选择菜单隐藏样式已添加");
     } else {
-      // 如果head还没准备好，等待DOM加载
       document.addEventListener("DOMContentLoaded", () => {
         document.head.appendChild(style);
-        console.log("Medium文本选择菜单隐藏样式已添加 (DOMContentLoaded)");
       });
     }
   }
@@ -52,7 +56,6 @@
       mutations.forEach((mutation) => {
         mutation.addedNodes.forEach((node) => {
           if (node.nodeType === Node.ELEMENT_NODE) {
-            // 检查是否是文本选择菜单容器
             if (
               node.classList &&
               (node.classList.contains("eo") ||
@@ -64,10 +67,8 @@
               node.style.visibility = "hidden";
               node.style.opacity = "0";
               node.style.pointerEvents = "none";
-              console.log("动态隐藏了Medium文本选择菜单");
             }
 
-            // 检查子元素中是否包含菜单
             const menuElements =
               node.querySelectorAll &&
               node.querySelectorAll(
@@ -86,27 +87,19 @@
                 menu.style.opacity = "0";
                 menu.style.pointerEvents = "none";
               });
-              console.log(
-                `动态隐藏了${menuElements.length}个Medium文本选择菜单元素`
-              );
             }
           }
         });
       });
     });
 
-    // 开始观察
     observer.observe(document.body || document.documentElement, {
       childList: true,
       subtree: true,
     });
 
-    console.log("Medium文本选择菜单监控已启动");
-
-    // 10秒后停止监控以避免性能问题
     setTimeout(() => {
       observer.disconnect();
-      console.log("Medium文本选择菜单监控已停止");
     }, 10000);
   }
 
@@ -128,40 +121,40 @@
         element.style.opacity = "0";
         element.style.pointerEvents = "none";
       });
-      if (elements.length > 0) {
-        console.log(
-          `隐藏了${elements.length}个现有的Medium文本选择菜单元素 (${selector})`
-        );
+    });
+  }
+
+  // 主初始化函数
+  async function init() {
+    const config = await getConfig();
+    
+    // 如果站点被禁用或特定功能被禁用，则跳过
+    if (config && config.enabled === false) return;
+    if (config && config.features?.hideFloat?.enabled === false) return;
+
+    addHideMenuStyles();
+    hideExistingMenus();
+    observeAndHideMenus();
+  }
+
+  // 监听配置更新
+  if (typeof chrome !== 'undefined' && chrome.runtime) {
+    chrome.runtime.onMessage.addListener((request) => {
+      if (request.type === "SETTINGS_UPDATED") {
+        location.reload();
       }
     });
   }
 
-  // 初始化函数
-  function init() {
-    // 添加CSS样式
-    addHideMenuStyles();
-
-    // 隐藏现有菜单
-    hideExistingMenus();
-
-    // 开始监控新菜单
-    observeAndHideMenus();
-
-    console.log("Medium文本选择菜单隐藏功能已初始化");
-  }
-
-  // 根据页面加载状态执行初始化
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
   } else {
     init();
   }
 
-  // 页面完全加载后再次检查
   window.addEventListener("load", () => {
     setTimeout(() => {
       hideExistingMenus();
-      console.log("页面加载完成后再次隐藏Medium文本选择菜单");
     }, 1000);
   });
 })();

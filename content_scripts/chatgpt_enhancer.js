@@ -4,46 +4,15 @@
   const isOnChatGPTSite = window.location.hostname.includes("chatgpt.com");
   const BUTTON_TEXTS_TO_HIDE = ["询问 ChatGPT", "Ask ChatGPT", "问 ChatGPT"];
 
-  const QUICK_PROMPTS = [
-    {
-      label: "读文章",
-      prompt: `### 读文章
-我们继续读文章。对于下面的每个文章，我给出链接，你给出 3-5句短评，给出批评意见，2-3句整体，口语化，日常话，我们是老朋友那种
+  let QUICK_PROMPTS = [];
 
-下面开始
-`
-    },
-    {
-      label: "写推特",
-      prompt: `### 写推特帖子
-我的偏好:
-- 用最短、最接地气的日常口语回答，严禁任何心理学/大脑术语
-- 输出控制在用户指定字数以内
-- 严格按用户给的示例句子风格和内容走，不要自行添加解释、建议或多余内容。
-`
-    },
-    {
-      label: "小步骤",
-      prompt: `### 指导操作步骤
-请不要一下子给出这么多步骤,每次给出小步骤！你输出太多太乱，我容易失去耐心，后果非常严重。
-
-禁止基于经验的瞎猜，必须依据项目实际目录结构和代码逻辑给出结论。
-
-比如，当前在那个文件夹目录，执行哪个命令
-比如，在哪个位置执行这个命令？？ npm run build
-`
-    },
-    {
-      label: "搜项目",
-      prompt: `### 搜索 github 项目
-帮我在 github 上搜一下，这种项目:
-一键发送帖子，尤其是 x, 知乎，抖音，小红书这种平台
-最好是能一键发送到多个平台。
-
-要比较新的，用户多的，有效的，好用好评的。
-`
+  // 获取配置
+  async function getConfig() {
+    if (typeof AIToolsUtils !== 'undefined') {
+      return await AIToolsUtils.getSettings();
     }
-  ];
+    return null;
+  }
 
   /**
    * 隐藏浮动的"询问 ChatGPT"按钮（只在非 ChatGPT 官网上执行）
@@ -60,15 +29,10 @@
     });
   }
 
-  /**
-   * 查找并隐藏目标按钮（只在非 ChatGPT 官网上执行）
-   */
   function findAndHideButton() {
     if (isOnChatGPTSite) return;
     hideFloatingAskButton();
   }
-
-
 
   function adjustChatGPTInputHeight() {
     if (!isOnChatGPTSite) return;
@@ -109,7 +73,7 @@
       flex-wrap: wrap;
     `;
 
-    QUICK_PROMPTS.forEach(({ label, prompt }) => {
+    QUICK_PROMPTS.forEach(({ label, content }) => {
       const button = document.createElement("button");
       button.textContent = label;
       button.type = "button";
@@ -131,10 +95,10 @@
         
         if (proseMirror) {
           proseMirror.focus();
-          proseMirror.textContent = prompt;
+          proseMirror.textContent = content;
           proseMirror.dispatchEvent(new Event('input', { bubbles: true }));
         } else if (textarea) {
-          textarea.value = prompt;
+          textarea.value = content;
           textarea.focus();
           textarea.dispatchEvent(new Event('input', { bubbles: true }));
         }
@@ -192,16 +156,42 @@
     document.head.appendChild(style);
   }
 
-  function init() {
+  // 主初始化函数
+  async function init() {
+    const config = await getConfig();
+    
     addCSS();
     
     if (isOnChatGPTSite) {
-      adjustChatGPTInputHeight();
-      createQuickPromptButtons();
+      if (!config || config.enabled !== false) {
+        if (!config || config.features?.adjustInput?.enabled !== false) {
+          adjustChatGPTInputHeight();
+        }
+        
+        // 加载提示词配置
+        const prompts = await AIToolsUtils.getPrompts();
+        if (prompts && prompts.length > 0) {
+          QUICK_PROMPTS = prompts;
+          createQuickPromptButtons();
+        }
+      }
     } else {
-      findAndHideButton();
-      observeFloatingButtons();
+      if (!config || config.enabled !== false) {
+        if (!config || config.features?.hideFloating?.enabled !== false) {
+          findAndHideButton();
+          observeFloatingButtons();
+        }
+      }
     }
+  }
+
+  // 监听配置更新消息
+  if (typeof chrome !== 'undefined' && chrome.runtime) {
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+      if (request.type === "SETTINGS_UPDATED") {
+        location.reload();
+      }
+    });
   }
 
   if (document.readyState === "loading") {
@@ -212,7 +202,7 @@
 
   window.addEventListener("load", () => {
     setTimeout(() => {
-      if (isOnChatGPTSite) {
+      if (isOnChatGPTSite && QUICK_PROMPTS.length > 0) {
         createQuickPromptButtons();
       }
     }, 1000);
