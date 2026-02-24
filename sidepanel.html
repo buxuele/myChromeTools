@@ -11,17 +11,35 @@
         <h2>AI Tools 设置</h2>
     </div>
 
-    <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="搜索设置...">
+    <div class="nav-tabs">
+        <button id="tabPrompts" class="nav-tab active">提示词管理</button>
+        <button id="tabSettings" class="nav-tab">功能设置</button>
     </div>
 
-    <div id="settingsList" class="settings-list">
-        <!-- 动态生成设置项 -->
+    <div id="viewPrompts" class="view-content">
+        <div class="prompt-tabs" id="promptTabs">
+            <!-- 动态生成提示词按钮 -->
+        </div>
+        <div id="promptEditor" class="prompt-editor">
+            <!-- 动态生成编辑区域 -->
+        </div>
+    </div>
+
+    <div id="viewSettings" class="view-content" style="display: none;">
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="搜索设置...">
+        </div>
+
+        <div id="settingsList" class="settings-list">
+        </div>
     </div>
 
     <div class="footer">
         <button id="resetAll" class="secondary-btn">恢复默认</button>
+        <button id="exportSettings" class="secondary-btn">导出配置</button>
+        <button id="importSettings" class="secondary-btn">导入配置</button>
     </div>
+    <input type="file" id="importFile" accept=".json" style="display: none;">
 
     <script src="sidepanel.js"></script>
 </body>
