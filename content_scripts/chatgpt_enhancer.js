@@ -54,60 +54,78 @@
 
   function createQuickPromptButtons() {
     if (!isOnChatGPTSite) return;
-    if (document.getElementById("aitools-quick-prompts")) return;
-
-    const inputContainer = document.querySelector('form[class*="stretch"]') || 
-                          document.querySelector('form') ||
-                          document.querySelector('#prompt-textarea')?.closest('div');
     
-    if (!inputContainer) return;
+    const buttonBar = document.getElementById("aitools-quick-prompts");
+    
+    chrome.storage.sync.get(['showPromptButtons'], (result) => {
+      const shouldShow = result.showPromptButtons !== false;
+      
+      if (!shouldShow && buttonBar) {
+        buttonBar.style.display = 'none';
+        return;
+      }
+      
+      if (shouldShow && buttonBar) {
+        buttonBar.style.display = 'flex';
+        return;
+      }
+      
+      if (!shouldShow) return;
+      if (buttonBar) return;
 
-    const buttonBar = document.createElement("div");
-    buttonBar.id = "aitools-quick-prompts";
-    buttonBar.style.cssText = `
-      display: flex;
-      gap: 8px;
-      padding: 8px 12px;
-      background: transparent;
-      margin-bottom: 8px;
-      flex-wrap: wrap;
-    `;
+      const inputContainer = document.querySelector('form[class*="stretch"]') || 
+                            document.querySelector('form') ||
+                            document.querySelector('#prompt-textarea')?.closest('div');
+      
+      if (!inputContainer) return;
 
-    QUICK_PROMPTS.forEach(({ label, content }) => {
-      const button = document.createElement("button");
-      button.textContent = label;
-      button.type = "button";
-      button.title = prompt;
-      button.style.cssText = `
-        padding: 6px 12px;
-        background: #4a4a4a;
-        color: #ffffff;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 13px;
-        font-weight: 500;
+      const newButtonBar = document.createElement("div");
+      newButtonBar.id = "aitools-quick-prompts";
+      newButtonBar.style.cssText = `
+        display: flex;
+        gap: 8px;
+        padding: 8px 12px;
+        background: transparent;
+        margin-bottom: 8px;
+        flex-wrap: wrap;
       `;
 
-      button.addEventListener("click", () => {
-        const proseMirror = document.querySelector('div.ProseMirror[contenteditable="true"]');
-        const textarea = document.querySelector("#prompt-textarea");
-        
-        if (proseMirror) {
-          proseMirror.focus();
-          proseMirror.textContent = content;
-          proseMirror.dispatchEvent(new Event('input', { bubbles: true }));
-        } else if (textarea) {
-          textarea.value = content;
-          textarea.focus();
-          textarea.dispatchEvent(new Event('input', { bubbles: true }));
-        }
+      QUICK_PROMPTS.forEach(({ label, content }) => {
+        const button = document.createElement("button");
+        button.textContent = label;
+        button.type = "button";
+        button.title = content;
+        button.style.cssText = `
+          padding: 6px 12px;
+          background: #4a4a4a;
+          color: #ffffff;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 13px;
+          font-weight: 500;
+        `;
+
+        button.addEventListener("click", () => {
+          const proseMirror = document.querySelector('div.ProseMirror[contenteditable="true"]');
+          const textarea = document.querySelector("#prompt-textarea");
+          
+          if (proseMirror) {
+            proseMirror.focus();
+            proseMirror.textContent = content;
+            proseMirror.dispatchEvent(new Event('input', { bubbles: true }));
+          } else if (textarea) {
+            textarea.value = content;
+            textarea.focus();
+            textarea.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+        });
+
+        newButtonBar.appendChild(button);
       });
 
-      buttonBar.appendChild(button);
+      inputContainer.parentNode.insertBefore(newButtonBar, inputContainer);
     });
-
-    inputContainer.parentNode.insertBefore(buttonBar, inputContainer);
   }
 
   function observeFloatingButtons() {
@@ -190,6 +208,9 @@
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       if (request.type === "SETTINGS_UPDATED") {
         location.reload();
+      }
+      if (request.type === "TOGGLE_PROMPT_BUTTONS") {
+        createQuickPromptButtons();
       }
     });
   }

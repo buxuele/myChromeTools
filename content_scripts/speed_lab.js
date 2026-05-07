@@ -14,14 +14,11 @@
     );
 
     if (checkbox && !checkbox.checked) {
-      checkbox.checked = true;
-
-      const changeEvent = new Event("change", { bubbles: true });
-      checkbox.dispatchEvent(changeEvent);
-
-      const clickEvent = new Event("click", { bubbles: true });
-      checkbox.dispatchEvent(clickEvent);
-
+      setTimeout(() => {
+        checkbox.checked = true;
+        checkbox.dispatchEvent(new Event("change", { bubbles: true }));
+        checkbox.dispatchEvent(new Event("click", { bubbles: true }));
+      }, 200);
       return true;
     } else if (checkbox && checkbox.checked) {
       return true;
@@ -32,7 +29,9 @@
   function autoClickStartButton() {
     const startButton = document.querySelector("#startButton");
     if (startButton && !startButton.classList.contains("disabled")) {
-      startButton.click();
+      setTimeout(() => {
+        startButton.click();
+      }, 200);
       return true;
     }
     return false;
@@ -88,23 +87,24 @@
     const checkbox = findCheckboxWithFallback();
 
     if (checkbox && !checkbox.checked) {
-      checkbox.checked = true;
+      setTimeout(() => {
+        checkbox.checked = true;
 
-      const events = ["change", "click", "input"];
-      events.forEach((eventType) => {
-        const event = new Event(eventType, { bubbles: true });
-        checkbox.dispatchEvent(event);
-      });
+        const events = ["change", "click", "input"];
+        events.forEach((eventType) => {
+          const event = new Event(eventType, { bubbles: true });
+          checkbox.dispatchEvent(event);
+        });
 
-      if (window.angular) {
-        const scope = window.angular.element(checkbox).scope();
-        if (scope) {
-          scope.$apply(() => {
-            scope.privacyConsent = true;
-          });
+        if (window.angular) {
+          const scope = window.angular.element(checkbox).scope();
+          if (scope) {
+            scope.$apply(() => {
+              scope.privacyConsent = true;
+            });
+          }
         }
-      }
-
+      }, 200);
       return true;
     } else if (checkbox && checkbox.checked) {
       return true;
@@ -125,7 +125,7 @@
     }
 
     if (success) {
-      setTimeout(autoClickStartButton, 500);
+      setTimeout(autoClickStartButton, 700);
     } else {
       const observer = new MutationObserver((mutations, obs) => {
         let shouldTry = false;
@@ -161,10 +161,10 @@
             const success =
               autoCheckPrivacyConsent() || autoCheckWithFallback();
             if (success) {
-              setTimeout(autoClickStartButton, 500);
+              setTimeout(autoClickStartButton, 700);
               obs.disconnect();
             }
-          }, 100);
+          }, 300);
         }
       });
 
@@ -197,8 +197,8 @@
     setTimeout(() => {
       const success = autoCheckPrivacyConsent() || autoCheckWithFallback();
       if (success) {
-        setTimeout(autoClickStartButton, 500);
+        setTimeout(autoClickStartButton, 700);
       }
-    }, 1000);
+    }, 1500);
   });
 })();

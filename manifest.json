@@ -79,6 +79,7 @@
       "js": ["content_scripts/hacker_news/content.js"],
       "run_at": "document_start"
     }
+    
   ],
   "web_accessible_resources": [
     {
