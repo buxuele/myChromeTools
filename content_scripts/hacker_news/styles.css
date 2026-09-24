@@ -3,9 +3,17 @@
 /* Nunito Bold 字体定义 */
 @font-face {
   font-family: "Nunito";
-  src: url(chrome-extension://__MSG_@@extension_id__/Nunito-fonts/Nunito-Bold.ttf)
-    format("truetype");
+  src: url(../../Nunito-fonts/Nunito-Bold.ttf) format("truetype");
   font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Nunito SemiBold 字体定义 */
+@font-face {
+  font-family: "Nunito";
+  src: url(../../Nunito-fonts/Nunito-SemiBold.ttf) format("truetype");
+  font-weight: 400 600;
   font-style: normal;
   font-display: swap;
 }

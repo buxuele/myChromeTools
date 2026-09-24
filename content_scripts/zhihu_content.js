@@ -1,101 +1,82 @@
+// 知乎专栏：显示发布时间与隐藏浮动菜单
+
 (function () {
   "use strict";
 
-  async function getConfig() {
-    if (typeof AIToolsUtils !== 'undefined') {
-      return await AIToolsUtils.getSettings();
+  const STYLE_ID = "aitools-zhihu-hide-float";
+  const TIME_CLASS = "aitools-publish-time";
+  const HIDE_CSS = `
+    .RichContent-outputText,
+    .css-1jg5yfb,
+    .css-fg13ww,
+    div:has(> .css-fg13ww) {
+      display: none !important;
     }
-    return null;
-  }
-
-  function addHideStyles() {
-    if (document.getElementById("zhihu-hide-floating-bar")) return;
-
-    const style = document.createElement("style");
-    style.id = "zhihu-hide-floating-bar";
-    style.textContent = `
-      .RichContent-outputText {
-        display: none !important;
-      }
-      .css-1jg5yfb,
-      .css-fg13ww,
-      div:has(> .css-fg13ww) {
-        display: none !important;
-      }
-    `;
-    document.head.appendChild(style);
-  }
+  `;
 
   function addPublishTime() {
     const timeElement = document.querySelector('meta[itemprop="datePublished"]');
-    if (!timeElement) return;
+    if (!timeElement || !timeElement.content) return;
 
-    const rawTime = timeElement.content;
-    if (!rawTime) return;
+    const date = new Date(timeElement.content);
+    const formattedTime = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
+      date.getDate()
+    ).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 
-    const date = new Date(rawTime);
-    const formattedTime = `${date.getFullYear()}-${(date.getMonth() + 1)
-      .toString()
-      .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")} ${date
-      .getHours()
-      .toString()
-      .padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`;
+    const createStamp = (style) => {
+      const el = document.createElement("span");
+      el.className = TIME_CLASS;
+      el.style.cssText = style;
+      el.textContent = `发布于 ${formattedTime}`;
+      return el;
+    };
 
     const authorInfo = document.querySelector(".AuthorInfo");
-    if (authorInfo) {
-      if (authorInfo.innerText.includes(formattedTime)) return;
-
-      const timeSpan = document.createElement("span");
-      timeSpan.style.cssText = `
-        color: #8590a6;
-        font-size: 14px;
-        margin-left: 10px;
-        align-self: center;
-      `;
-      timeSpan.textContent = `发布于 ${formattedTime}`;
-      authorInfo.appendChild(timeSpan);
+    if (authorInfo && !authorInfo.querySelector("." + TIME_CLASS)) {
+      authorInfo.appendChild(
+        createStamp("color: #8590a6; font-size: 14px; margin-left: 10px; align-self: center;")
+      );
     }
 
     const postHeader = document.querySelector(".Post-Header");
-    if (postHeader && !authorInfo) {
-      if (postHeader.innerText.includes(formattedTime)) return;
-
-      const timeDiv = document.createElement("div");
-      timeDiv.style.cssText = `
-        color: #8590a6;
-        font-size: 14px;
-        margin-top: 10px;
-      `;
-      timeDiv.textContent = `发布于 ${formattedTime}`;
-      postHeader.appendChild(timeDiv);
+    if (postHeader && !postHeader.querySelector("." + TIME_CLASS)) {
+      postHeader.appendChild(createStamp("color: #8590a6; font-size: 14px; margin-top: 10px; display: block;"));
     }
   }
 
-  async function init() {
-    const config = await getConfig();
-    
-    if (config && config.enabled === false) return;
+  function removePublishTime() {
+    document.querySelectorAll("." + TIME_CLASS).forEach((el) => el.remove());
+  }
 
-    if (!config || config.features?.showTime?.enabled !== false) {
+  async function apply() {
+    const config = await AIToolsUtils.getSettings();
+    const siteOff = !!(config && config.enabled === false);
+
+    const hideFloatOn = !siteOff && !(config && config.features?.hideFloat?.enabled === false);
+    const showTimeOn = !siteOff && !(config && config.features?.showTime?.enabled === false);
+
+    if (hideFloatOn) {
+      AIToolsUtils.applyStyle(STYLE_ID, HIDE_CSS);
+    } else {
+      AIToolsUtils.removeStyle(STYLE_ID);
+    }
+
+    if (showTimeOn) {
       addPublishTime();
-    }
-
-    if (!config || config.features?.hideFloat?.enabled !== false) {
-      addHideStyles();
+    } else {
+      removePublishTime();
     }
   }
 
-  if (typeof chrome !== 'undefined' && chrome.runtime) {
-    chrome.runtime.onMessage.addListener((request) => {
-      if (request.type === "SETTINGS_UPDATED") {
-        location.reload();
-      }
-    });
-  }
+  AIToolsUtils.onSettingsChanged(apply);
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
+    document.addEventListener("DOMContentLoaded", apply);
   } else {
-    init();
+    apply();
   }
+
+  window.addEventListener("load", () => {
+    setTimeout(apply, 500);
+  });
 })();

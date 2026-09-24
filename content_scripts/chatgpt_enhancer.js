@@ -1,231 +1,115 @@
 (function () {
   "use strict";
 
-  const isOnChatGPTSite = window.location.hostname.includes("chatgpt.com");
-  const BUTTON_TEXTS_TO_HIDE = ["询问 ChatGPT", "Ask ChatGPT", "问 ChatGPT"];
-
-  let QUICK_PROMPTS = [];
-
-  // 获取配置
-  async function getConfig() {
-    if (typeof AIToolsUtils !== 'undefined') {
-      return await AIToolsUtils.getSettings();
+  const BAR_ID = "aitools-quick-prompts";
+  const INPUT_STYLE_ID = "aitools-chatgpt-input-height";
+  const INPUT_HEIGHT_CSS = `
+    #prompt-textarea,
+    div.ProseMirror[contenteditable="true"] {
+      height: 100px !important;
+      min-height: 100px !important;
+      max-height: 100px !important;
     }
-    return null;
+  `;
+
+  const state = {
+    barOn: false,
+    heightOn: false,
+    prompts: []
+  };
+
+  function findInputContainer() {
+    return (
+      document.querySelector('form[class*="stretch"]') ||
+      document.querySelector("form") ||
+      (document.querySelector("#prompt-textarea")
+        ? document.querySelector("#prompt-textarea").closest("div")
+        : null)
+    );
   }
 
-  /**
-   * 隐藏浮动的"询问 ChatGPT"按钮（只在非 ChatGPT 官网上执行）
-   */
-  function hideFloatingAskButton() {
-    if (isOnChatGPTSite) return;
-
-    const floatingDivs = document.querySelectorAll("div.fixed.select-none");
-    floatingDivs.forEach((div) => {
-      const text = div.textContent?.trim() || "";
-      if (BUTTON_TEXTS_TO_HIDE.some((hideText) => text.includes(hideText))) {
-        div.style.display = "none";
-      }
-    });
-  }
-
-  function findAndHideButton() {
-    if (isOnChatGPTSite) return;
-    hideFloatingAskButton();
-  }
-
-  function adjustChatGPTInputHeight() {
-    if (!isOnChatGPTSite) return;
-
-    const textarea = document.querySelector("#prompt-textarea");
-    if (textarea) {
-      textarea.style.height = "100px";
-      textarea.style.minHeight = "100px";
-      textarea.style.maxHeight = "100px";
-    }
-
+  function insertContent(content) {
     const proseMirror = document.querySelector('div.ProseMirror[contenteditable="true"]');
-    if (proseMirror) {
-      proseMirror.style.height = "100px";
-      proseMirror.style.minHeight = "100px";
-      proseMirror.style.maxHeight = "100px";
+    const textarea = document.querySelector("#prompt-textarea");
+    const target = proseMirror || textarea;
+
+    if (target) {
+      AIToolsUtils.insertPromptToInput(target, content);
     }
   }
 
-  function createQuickPromptButtons() {
-    if (!isOnChatGPTSite) return;
-    
-    const buttonBar = document.getElementById("aitools-quick-prompts");
-    
-    chrome.storage.sync.get(['showPromptButtons'], (result) => {
-      const shouldShow = result.showPromptButtons !== false;
-      
-      if (!shouldShow && buttonBar) {
-        buttonBar.style.display = 'none';
-        return;
-      }
-      
-      if (shouldShow && buttonBar) {
-        buttonBar.style.display = 'flex';
-        return;
-      }
-      
-      if (!shouldShow) return;
-      if (buttonBar) return;
-
-      const inputContainer = document.querySelector('form[class*="stretch"]') || 
-                            document.querySelector('form') ||
-                            document.querySelector('#prompt-textarea')?.closest('div');
-      
-      if (!inputContainer) return;
-
-      const newButtonBar = document.createElement("div");
-      newButtonBar.id = "aitools-quick-prompts";
-      newButtonBar.style.cssText = `
-        display: flex;
-        gap: 8px;
-        padding: 8px 12px;
-        background: transparent;
-        margin-bottom: 8px;
-        flex-wrap: wrap;
-      `;
-
-      QUICK_PROMPTS.forEach(({ label, content }) => {
-        const button = document.createElement("button");
-        button.textContent = label;
-        button.type = "button";
-        button.title = content;
-        button.style.cssText = `
-          padding: 6px 12px;
-          background: #4a4a4a;
-          color: #ffffff;
-          border: none;
-          border-radius: 6px;
-          cursor: pointer;
-          font-size: 13px;
-          font-weight: 500;
-        `;
-
-        button.addEventListener("click", () => {
-          const proseMirror = document.querySelector('div.ProseMirror[contenteditable="true"]');
-          const textarea = document.querySelector("#prompt-textarea");
-          
-          if (proseMirror) {
-            proseMirror.focus();
-            proseMirror.textContent = content;
-            proseMirror.dispatchEvent(new Event('input', { bubbles: true }));
-          } else if (textarea) {
-            textarea.value = content;
-            textarea.focus();
-            textarea.dispatchEvent(new Event('input', { bubbles: true }));
-          }
-        });
-
-        newButtonBar.appendChild(button);
-      });
-
-      inputContainer.parentNode.insertBefore(newButtonBar, inputContainer);
-    });
+  function signature() {
+    return JSON.stringify(state.prompts.map((p) => [p.id, p.label]));
   }
 
-  function observeFloatingButtons() {
-    if (isOnChatGPTSite) return;
+  function renderBar() {
+    const existing = document.getElementById(BAR_ID);
 
-    const observer = new MutationObserver(() => {
-      hideFloatingAskButton();
-    });
-
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-    });
-
-    setTimeout(() => observer.disconnect(), 10000);
-  }
-
-  function addCSS() {
-    if (document.getElementById("aitools-chatgpt-enhancer")) return;
-
-    const style = document.createElement("style");
-    style.id = "aitools-chatgpt-enhancer";
-    
-    let cssContent = "";
-
-    if (!isOnChatGPTSite) {
-      cssContent += `
-        *[data-extension*="chatgpt"] {
-          display: none !important;
-        }
-      `;
+    if (!state.barOn) {
+      if (existing) existing.remove();
+      return;
     }
 
-    if (isOnChatGPTSite) {
-      cssContent += `
-        #prompt-textarea,
-        div.ProseMirror[contenteditable="true"] {
-          height: 100px !important;
-          min-height: 100px !important;
-          max-height: 100px !important;
-        }
-      `;
-    }
+    if (existing && existing.dataset.signature === signature()) return;
+    if (existing) existing.remove();
 
-    style.textContent = cssContent;
-    document.head.appendChild(style);
+    const container = findInputContainer();
+    if (!container || !container.parentNode) return;
+
+    const bar = AIToolsUtils.createPromptBar(BAR_ID, state.prompts, insertContent);
+    bar.dataset.signature = signature();
+    container.parentNode.insertBefore(bar, container);
   }
 
-  // 主初始化函数
-  async function init() {
-    const config = await getConfig();
-    
-    addCSS();
-    
-    if (isOnChatGPTSite) {
-      if (!config || config.enabled !== false) {
-        if (!config || config.features?.adjustInput?.enabled !== false) {
-          adjustChatGPTInputHeight();
-        }
-        
-        // 加载提示词配置
-        const prompts = await AIToolsUtils.getPrompts();
-        if (prompts && prompts.length > 0) {
-          QUICK_PROMPTS = prompts;
-          createQuickPromptButtons();
-        }
-      }
+  function scheduleRender(attempt) {
+    renderBar();
+    if (state.barOn && !document.getElementById(BAR_ID) && attempt < 6) {
+      setTimeout(() => scheduleRender(attempt + 1), 1000);
+    }
+  }
+
+  async function apply() {
+    const config = await AIToolsUtils.getSettings();
+    const siteOff = !!(config && config.enabled === false);
+
+    state.heightOn = !siteOff && !(config && config.features?.adjustInput?.enabled === false);
+    state.barOn =
+      !siteOff &&
+      !(config && config.features?.quickPrompts?.enabled === false) &&
+      (await readState()).showPromptButtons;
+    state.prompts = await AIToolsUtils.getPrompts();
+
+    if (state.heightOn) {
+      AIToolsUtils.applyStyle(INPUT_STYLE_ID, INPUT_HEIGHT_CSS);
     } else {
-      if (!config || config.enabled !== false) {
-        if (!config || config.features?.hideFloating?.enabled !== false) {
-          findAndHideButton();
-          observeFloatingButtons();
-        }
-      }
+      AIToolsUtils.removeStyle(INPUT_STYLE_ID);
     }
+
+    scheduleRender(0);
   }
 
-  // 监听配置更新消息
-  if (typeof chrome !== 'undefined' && chrome.runtime) {
-    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-      if (request.type === "SETTINGS_UPDATED") {
-        location.reload();
-      }
-      if (request.type === "TOGGLE_PROMPT_BUTTONS") {
-        createQuickPromptButtons();
-      }
-    });
+  AIToolsUtils.onSettingsChanged(apply);
+
+  // 页面重绘会移除按钮栏，去抖后补回
+  let renderTimer = null;
+  const observer = new MutationObserver(() => {
+    if (!state.barOn) return;
+    clearTimeout(renderTimer);
+    renderTimer = setTimeout(renderBar, 500);
+  });
+
+  function start() {
+    apply();
+    observer.observe(document.documentElement, { childList: true, subtree: true });
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
+    document.addEventListener("DOMContentLoaded", start);
   } else {
-    init();
+    start();
   }
 
   window.addEventListener("load", () => {
-    setTimeout(() => {
-      if (isOnChatGPTSite && QUICK_PROMPTS.length > 0) {
-        createQuickPromptButtons();
-      }
-    }, 1000);
+    if (state.barOn) scheduleRender(0);
   });
 })();

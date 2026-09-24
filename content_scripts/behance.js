@@ -1,83 +1,90 @@
+// Behance 导航与轮播定位修复
+
 (function () {
   "use strict";
 
-  async function getConfig() {
-    if (typeof AIToolsUtils !== 'undefined') {
-      return await AIToolsUtils.getSettings();
-    }
-    return null;
-  }
-
-  const selectorToFix = '.PrimaryNav-root-GKW';
-  const selectorsToUnfix = [
-    '.PrimaryNav-strip-Xyi',
-    '.Explore-carouselContainer-ZMu',
-    '.ExploreCategoryCarousel-container-rDE',
-    '.Explore-headerContainer-fm3'
+  const TARGETS = [
+    { selector: ".PrimaryNav-root-GKW", position: "fixed" },
+    { selector: ".PrimaryNav-strip-Xyi", position: "relative" },
+    { selector: ".Explore-carouselContainer-ZMu", position: "relative" },
+    { selector: ".ExploreCategoryCarousel-container-rDE", position: "relative" },
+    { selector: ".Explore-headerContainer-fm3", position: "relative" }
   ];
 
-  const modifiedFixed = new Set();
-  const modifiedUnfixed = new Set();
+  // 记录原始内联定位，关闭时原样恢复
+  const originalPositions = new Map();
+  let observer = null;
 
-  function modifyElementPosition(selector, position, modifiedSet) {
-    if (modifiedSet.has(selector)) {
-      return true;
-    }
+  function applyTargets() {
+    let applied = 0;
 
-    const element = document.querySelector(selector);
-    if (element) {
+    TARGETS.forEach(({ selector, position }) => {
+      const element = document.querySelector(selector);
+      if (!element) return;
+
+      if (!originalPositions.has(selector)) {
+        originalPositions.set(selector, element.style.position);
+      }
       element.style.position = position;
-      modifiedSet.add(selector);
-      return true;
-    }
-    return false;
+      applied++;
+    });
+
+    return applied === TARGETS.length;
   }
 
-  function applyAllChanges() {
-    modifyElementPosition(selectorToFix, 'fixed', modifiedFixed);
-    selectorsToUnfix.forEach(selector => {
-      modifyElementPosition(selector, 'relative', modifiedUnfixed);
+  function revertTargets() {
+    originalPositions.forEach((original, selector) => {
+      const element = document.querySelector(selector);
+      if (element) element.style.position = original;
     });
-    return modifiedFixed.has(selectorToFix) && modifiedUnfixed.size === selectorsToUnfix.length;
-  }
+    originalPositions.clear();
 
-  async function init() {
-    const config = await getConfig();
-    
-    if (config && config.enabled === false) return;
-    if (config && config.features?.enhancement?.enabled === false) return;
-
-    applyAllChanges();
-
-    const observer = new MutationObserver(() => {
-      if (applyAllChanges()) {
-        observer.disconnect();
-      }
-    });
-
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
-
-    setTimeout(() => {
-      if (applyAllChanges()) {
-        observer.disconnect();
-      }
-    }, 2000);
-
-    setTimeout(() => {
+    if (observer) {
       observer.disconnect();
+      observer = null;
+    }
+  }
+
+  function startObserve() {
+    if (observer) return;
+
+    observer = new MutationObserver(() => {
+      if (applyTargets() && observer) {
+        observer.disconnect();
+        observer = null;
+      }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    setTimeout(() => {
+      if (observer) {
+        applyTargets();
+        observer.disconnect();
+        observer = null;
+      }
     }, 10000);
   }
 
-  if (typeof chrome !== 'undefined' && chrome.runtime) {
-    chrome.runtime.onMessage.addListener((request) => {
-      if (request.type === "SETTINGS_UPDATED") {
-        location.reload();
-      }
-    });
+  async function apply() {
+    const config = await AIToolsUtils.getSettings();
+    const shouldApply =
+      !(config && config.enabled === false) &&
+      !(config && config.features?.enhancement?.enabled === false);
+
+    if (shouldApply) {
+      applyTargets();
+      startObserve();
+    } else {
+      revertTargets();
+    }
   }
 
-  init();
+  AIToolsUtils.onSettingsChanged(apply);
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", apply);
+  } else {
+    apply();
+  }
 })();

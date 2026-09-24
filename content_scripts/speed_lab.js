@@ -1,12 +1,7 @@
+// Speed Test 自动勾选隐私同意并开始测速
+
 (function () {
   "use strict";
-
-  async function getConfig() {
-    if (typeof AIToolsUtils !== 'undefined') {
-      return await AIToolsUtils.getSettings();
-    }
-    return null;
-  }
 
   function autoCheckPrivacyConsent() {
     const checkbox = document.querySelector(
@@ -20,10 +15,8 @@
         checkbox.dispatchEvent(new Event("click", { bubbles: true }));
       }, 200);
       return true;
-    } else if (checkbox && checkbox.checked) {
-      return true;
     }
-    return false;
+    return !!checkbox;
   }
 
   function autoClickStartButton() {
@@ -39,44 +32,25 @@
 
   function findCheckboxWithFallback() {
     let checkbox = document.querySelector("#privacyConsent");
-    if (checkbox && checkbox.type === "checkbox") {
-      return checkbox;
-    }
+    if (checkbox && checkbox.type === "checkbox") return checkbox;
 
-    checkbox = document.querySelector(
-      'input[name="privacyConsent"][type="checkbox"]'
-    );
-    if (checkbox) {
-      return checkbox;
-    }
+    checkbox = document.querySelector('input[name="privacyConsent"][type="checkbox"]');
+    if (checkbox) return checkbox;
 
-    checkbox = document.querySelector(
-      'input[ng-model="privacyConsent"][type="checkbox"]'
-    );
-    if (checkbox) {
-      return checkbox;
-    }
+    checkbox = document.querySelector('input[ng-model="privacyConsent"][type="checkbox"]');
+    if (checkbox) return checkbox;
 
     const labels = document.querySelectorAll("label");
     for (const label of labels) {
       const text = label.textContent || "";
-      if (
-        text.includes("data policy") ||
-        text.includes("privacy") ||
-        text.includes("IP addresses")
-      ) {
+      if (text.includes("data policy") || text.includes("privacy") || text.includes("IP addresses")) {
         const forAttr = label.getAttribute("for");
         if (forAttr) {
           checkbox = document.querySelector(`#${forAttr}`);
-          if (checkbox && checkbox.type === "checkbox") {
-            return checkbox;
-          }
+          if (checkbox && checkbox.type === "checkbox") return checkbox;
         }
-
         checkbox = label.querySelector('input[type="checkbox"]');
-        if (checkbox) {
-          return checkbox;
-        }
+        if (checkbox) return checkbox;
       }
     }
 
@@ -90,10 +64,8 @@
       setTimeout(() => {
         checkbox.checked = true;
 
-        const events = ["change", "click", "input"];
-        events.forEach((eventType) => {
-          const event = new Event(eventType, { bubbles: true });
-          checkbox.dispatchEvent(event);
+        ["change", "click", "input"].forEach((eventType) => {
+          checkbox.dispatchEvent(new Event(eventType, { bubbles: true }));
         });
 
         if (window.angular) {
@@ -106,97 +78,90 @@
         }
       }, 200);
       return true;
-    } else if (checkbox && checkbox.checked) {
-      return true;
     }
-
-    return false;
+    return !!checkbox;
   }
 
-  async function init() {
-    const config = await getConfig();
-    
-    if (config && config.enabled === false) return;
+  let enabled = false;
+  let observer = null;
 
-    let success = autoCheckPrivacyConsent();
-
-    if (!success) {
-      success = autoCheckWithFallback();
+  function stopObserve() {
+    if (observer) {
+      observer.disconnect();
+      observer = null;
     }
+  }
+
+  function runAutomation() {
+    let success = autoCheckPrivacyConsent() || autoCheckWithFallback();
 
     if (success) {
       setTimeout(autoClickStartButton, 700);
-    } else {
-      const observer = new MutationObserver((mutations, obs) => {
-        let shouldTry = false;
+      return;
+    }
 
-        for (const mutation of mutations) {
-          if (mutation.addedNodes.length > 0) {
-            for (const node of mutation.addedNodes) {
-              if (node.nodeType === Node.ELEMENT_NODE) {
-                if (
-                  node.querySelector &&
-                  (node.querySelector("#privacyConsent") ||
-                    node.querySelector('input[type="checkbox"]') ||
-                    node.querySelector('input[name="privacyConsent"]'))
-                ) {
-                  shouldTry = true;
-                  break;
-                }
+    if (observer) return;
 
-                if (
-                  node.id === "privacyConsent" ||
-                  (node.type === "checkbox" && node.name === "privacyConsent")
-                ) {
-                  shouldTry = true;
-                  break;
-                }
-              }
-            }
-          }
-        }
+    observer = new MutationObserver((mutations) => {
+      const shouldTry = mutations.some((mutation) =>
+        Array.from(mutation.addedNodes).some(
+          (node) =>
+            node.nodeType === Node.ELEMENT_NODE &&
+            (node.id === "privacyConsent" ||
+              (node.type === "checkbox" && node.name === "privacyConsent") ||
+              (node.querySelector &&
+                (node.querySelector("#privacyConsent") ||
+                  node.querySelector('input[type="checkbox"]') ||
+                  node.querySelector('input[name="privacyConsent"]'))))
+        )
+      );
 
-        if (shouldTry) {
-          setTimeout(() => {
-            const success =
-              autoCheckPrivacyConsent() || autoCheckWithFallback();
-            if (success) {
-              setTimeout(autoClickStartButton, 700);
-              obs.disconnect();
-            }
-          }, 300);
-        }
-      });
-
-      observer.observe(document.body || document.documentElement, {
-        childList: true,
-        subtree: true,
-      });
+      if (!shouldTry) return;
 
       setTimeout(() => {
-        observer.disconnect();
-      }, 10000);
+        success = autoCheckPrivacyConsent() || autoCheckWithFallback();
+        if (success) {
+          setTimeout(autoClickStartButton, 700);
+          stopObserve();
+        }
+      }, 300);
+    });
+
+    observer.observe(document.body || document.documentElement, {
+      childList: true,
+      subtree: true
+    });
+
+    setTimeout(stopObserve, 10000);
+  }
+
+  async function apply() {
+    const config = await AIToolsUtils.getSettings();
+    const shouldApply =
+      !(config && config.enabled === false) &&
+      !(config && config.features?.autoStart?.enabled === false);
+
+    if (shouldApply && !enabled) {
+      enabled = true;
+      runAutomation();
+    } else if (!shouldApply) {
+      enabled = false;
+      stopObserve();
     }
   }
 
-  if (typeof chrome !== 'undefined' && chrome.runtime) {
-    chrome.runtime.onMessage.addListener((request) => {
-      if (request.type === "SETTINGS_UPDATED") {
-        location.reload();
-      }
-    });
-  }
+  AIToolsUtils.onSettingsChanged(apply);
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
+    document.addEventListener("DOMContentLoaded", apply);
   } else {
-    init();
+    apply();
   }
 
   window.addEventListener("load", () => {
+    if (!enabled) return;
     setTimeout(() => {
-      const success = autoCheckPrivacyConsent() || autoCheckWithFallback();
-      if (success) {
+      if (autoCheckPrivacyConsent() || autoCheckWithFallback()) {
         setTimeout(autoClickStartButton, 700);
       }
     }, 1500);

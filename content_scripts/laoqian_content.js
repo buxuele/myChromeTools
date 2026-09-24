@@ -3,48 +3,32 @@
 (function () {
   "use strict";
 
-  async function getConfig() {
-    if (typeof AIToolsUtils !== 'undefined') {
-      return await AIToolsUtils.getSettings();
-    }
-    return null;
-  }
+  const TARGET_SELECTOR = '#content[role="main"]';
 
-  function applyDarkBackground() {
-    const el = document.querySelector('#content[role="main"]');
-    
+  async function apply() {
+    const config = await AIToolsUtils.getSettings();
+    const shouldApply =
+      !(config && config.enabled === false) &&
+      !(config && config.features?.darkBackground?.enabled === false);
+
+    const el = document.querySelector(TARGET_SELECTOR);
     if (!el) {
-      console.warn('[aiTools] 没找到 #content[role="main"]');
+      console.warn("[aiTools] 没找到 " + TARGET_SELECTOR);
       return;
     }
-    
-    el.style.backgroundColor = '#91b3b5';
+
+    el.style.backgroundColor = shouldApply ? "#91b3b5" : "";
   }
 
-  async function init() {
-    const config = await getConfig();
-    
-    if (config && config.enabled === false) return;
-    
-    applyDarkBackground();
-  }
-
-  // 监听配置更新
-  if (typeof chrome !== 'undefined' && chrome.runtime) {
-    chrome.runtime.onMessage.addListener((request) => {
-      if (request.type === "SETTINGS_UPDATED") {
-        location.reload();
-      }
-    });
-  }
+  AIToolsUtils.onSettingsChanged(apply);
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
+    document.addEventListener("DOMContentLoaded", apply);
   } else {
-    init();
+    apply();
   }
 
   window.addEventListener("load", () => {
-    setTimeout(applyDarkBackground, 100);
+    setTimeout(apply, 100);
   });
 })();

@@ -386,6 +386,17 @@ input:checked + .slider:before {
     color: #888;
 }
 
+.feature-select {
+    flex-shrink: 0;
+    padding: 6px 8px;
+    border: 1px solid #3a3a3a;
+    border-radius: 8px;
+    background: #1e222b;
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+}
+
 .footer {
     margin-top: 20px;
     text-align: center;

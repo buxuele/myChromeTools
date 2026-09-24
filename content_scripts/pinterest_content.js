@@ -1,79 +1,101 @@
-// 处理 https://i.pinimg.com/* 的 URL 修改和图片下载逻辑。
+// 处理 https://i.pinimg.com/* 的原图地址改写与图片下载
 
 (function () {
   "use strict";
 
-  async function getConfig() {
-    if (typeof AIToolsUtils !== 'undefined') {
-      return await AIToolsUtils.getSettings();
-    }
-    return null;
+  const DOWNLOADED_KEY = "downloadedUrls";
+  const DOWNLOADED_LIMIT = 100;
+
+  let downloadStarted = false;
+
+  function toOriginalUrl(url) {
+    return url.replace("/736x/", "/originals/").replace("/1200x/", "/originals/");
   }
 
-  let newUrl = window.location.href;
-  let urlChanged = false;
-  
-  if (newUrl.includes('/736x/')) {
-    newUrl = newUrl.replace('/736x/', '/originals/');
-    urlChanged = true;
-  } else if (newUrl.includes('/1200x/')) {
-    newUrl = newUrl.replace('/1200x/', '/originals/');
-    urlChanged = true;
+  async function hasDownloaded(url) {
+    const stored = await chrome.storage.local.get(DOWNLOADED_KEY);
+    return (stored[DOWNLOADED_KEY] || []).includes(url);
   }
 
-  if (urlChanged) {
-    window.location.replace(newUrl);
+  async function markDownloaded(url) {
+    const stored = await chrome.storage.local.get(DOWNLOADED_KEY);
+    const list = stored[DOWNLOADED_KEY] || [];
+    await chrome.storage.local.set({
+      [DOWNLOADED_KEY]: [url, ...list.filter((item) => item !== url)].slice(0, DOWNLOADED_LIMIT)
+    });
   }
 
-  if (newUrl.includes('/originals/')) {
-    function triggerDownload() {
-      const img = document.querySelector('img');
-      if (img && img.src) {
-        chrome.runtime.sendMessage(
-          {
-            action: 'download',
-            url: img.src
-          },
-          (response) => {
-            if (chrome.runtime.lastError) {
-              console.error('[aiTools] 消息发送失败:', chrome.runtime.lastError);
-              return;
-            }
-            if (response && response.success) {
-              console.log('[aiTools] 图片下载已触发');
-            }
-          }
-        );
-        return true;
-      }
-      return false;
-    }
-
-    async function init() {
-      const config = await getConfig();
-      
-      if (config && config.enabled === false) return;
-      if (config && config.features?.originalImage?.enabled === false) return;
-
-      window.addEventListener('load', () => {
-        if (triggerDownload()) {
-          console.log('[aiTools] 下载在 load 事件中触发');
+  function requestDownload(url) {
+    return new Promise((resolve) => {
+      chrome.runtime.sendMessage({ action: "download", url }, (response) => {
+        if (chrome.runtime.lastError) {
+          console.error("[aiTools] 消息发送失败:", chrome.runtime.lastError);
+          resolve(false);
+          return;
         }
+        resolve(!!(response && response.success));
       });
+    });
+  }
 
-      const observer = new MutationObserver((mutations, obs) => {
-        if (triggerDownload()) {
-          obs.disconnect();
-        }
-      });
+  async function downloadFirstImage() {
+    if (downloadStarted) return;
 
-      observer.observe(document.body, { childList: true, subtree: true });
+    const img = document.querySelector("img");
+    if (!img || !img.src) return;
 
-      setTimeout(() => {
-        observer.disconnect();
-      }, 5000);
+    const url = img.src;
+    if (await hasDownloaded(url)) {
+      console.log("[aiTools] 该图片已下载过，跳过:", url);
+      return;
     }
 
-    init();
+    downloadStarted = true;
+    const success = await requestDownload(url);
+    if (success) {
+      await markDownloaded(url);
+      console.log("[aiTools] 图片下载已触发");
+    } else {
+      downloadStarted = false;
+    }
+  }
+
+  function isEnabled(config) {
+    return !(config && config.enabled === false) && !(config && config.features?.originalImage?.enabled === false);
+  }
+
+  async function apply() {
+    const config = await AIToolsUtils.getSettings();
+    if (!isEnabled(config)) return;
+
+    // 配置检查通过后再改写地址，关闭开关时不再强制跳转
+    if (window.location.href.includes("/736x/") || window.location.href.includes("/1200x/")) {
+      window.location.replace(toOriginalUrl(window.location.href));
+      return;
+    }
+
+    if (!window.location.href.includes("/originals/")) return;
+
+    window.addEventListener("load", downloadFirstImage);
+
+    const observer = new MutationObserver((mutations, obs) => {
+      downloadFirstImage().then(() => {
+        if (downloadStarted) obs.disconnect();
+      });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    setTimeout(() => observer.disconnect(), 5000);
+  }
+
+  AIToolsUtils.onSettingsChanged(() => {
+    downloadStarted = false;
+    apply();
+  });
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", apply);
+  } else {
+    apply();
   }
 })();
