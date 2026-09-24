@@ -32,14 +32,17 @@
     };
 
     const authorInfo = document.querySelector(".AuthorInfo");
+    const hasAuthorInfo = !!authorInfo;
+
     if (authorInfo && !authorInfo.querySelector("." + TIME_CLASS)) {
       authorInfo.appendChild(
         createStamp("color: #8590a6; font-size: 14px; margin-left: 10px; align-self: center;")
       );
     }
 
+    // 没有作者栏时才退回到文章头部，避免同页出现两处时间
     const postHeader = document.querySelector(".Post-Header");
-    if (postHeader && !postHeader.querySelector("." + TIME_CLASS)) {
+    if (!hasAuthorInfo && postHeader && !postHeader.querySelector("." + TIME_CLASS)) {
       postHeader.appendChild(createStamp("color: #8590a6; font-size: 14px; margin-top: 10px; display: block;"));
     }
   }

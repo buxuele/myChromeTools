@@ -1,8 +1,7 @@
 {
   "name": "ai-tools",
   "version": "1.1.0",
-  "description": "",
-  "main": "index.js",
+  "description": "aiTools 网站增强浏览器扩展",
   "scripts": {
     "test": "node --test tests/*.test.js",
     "lint": "eslint ."

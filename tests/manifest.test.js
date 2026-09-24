@@ -41,11 +41,12 @@ test("content_scripts 声明的文件全部存在且以 defaults.js 开头", () 
   });
 });
 
-test("站点匹配规则覆盖全部注入域名", () => {
+test("站点匹配规则不含已下线站点", () => {
   const manifest = JSON.parse(readProjectFile("manifest.json"));
   const patterns = manifest.content_scripts.flatMap((entry) => entry.matches);
 
-  assert.ok(patterns.includes("https://levelup.gitconnected.com/*"), "Medium 第二域名缺少通配");
+  assert.ok(!patterns.some((p) => p.includes("medium.com")), "Medium 功能应已移除");
+  assert.ok(!patterns.some((p) => p.includes("levelup.gitconnected.com")), "Medium 功能应已移除");
   assert.ok(patterns.every((p) => !p.endsWith(".com/")), "匹配规则路径不能只命中根路径");
 });
 
@@ -80,9 +81,17 @@ test("代码里不再出现整页刷新与 sync 直连", () => {
 });
 
 test("死文件已清理", () => {
-  ["brightness_controller.js", "todo.md"].forEach((file) => {
-    assert.ok(!fs.existsSync(path.join(root, file)), `${file} 应已删除`);
-  });
+  ["brightness_controller.js", "todo.md", "content_scripts/medium_content.js", "images/g1.png"].forEach(
+    (file) => {
+      assert.ok(!fs.existsSync(path.join(root, file)), `${file} 应已删除`);
+    }
+  );
+
+  const manifest = JSON.parse(readProjectFile("manifest.json"));
+  assert.ok(
+    !JSON.stringify(manifest).includes("medium"),
+    "manifest 不应再引用 Medium"
+  );
 
   const source = fs.readFileSync(path.join(root, "content_scripts/hacker_news/content.js"), "utf8");
   assert.ok(!source.includes("forceRoundedFont"), "forceRoundedFont 是死函数");

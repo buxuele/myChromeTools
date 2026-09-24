@@ -26,14 +26,6 @@ const STYLE_CASES = [
     feature: "enhancement"
   },
   {
-    name: "Medium 隐藏文本选择菜单",
-    script: "content_scripts/medium_content.js",
-    url: "https://medium.com/",
-    styleId: "aitools-medium-hide-menu",
-    site: "medium",
-    feature: "hideFloat"
-  },
-  {
     name: "Perplexity 隐藏浮动元素",
     script: "content_scripts/perplexity_content.js",
     url: "https://www.perplexity.ai/",
@@ -88,7 +80,19 @@ test("知乎：隐藏浮动样式与发布时间可独立开关", async () => {
   await sleep(50);
 
   assert.ok(ctx.document.getElementById("aitools-zhihu-hide-float"));
-  assert.strictEqual(ctx.document.querySelectorAll(".aitools-publish-time").length, 2);
+  assert.strictEqual(
+    ctx.document.querySelectorAll(".aitools-publish-time").length,
+    1,
+    "有作者栏时只显示一处时间"
+  );
+  assert.ok(
+    ctx.document.querySelector(".AuthorInfo .aitools-publish-time"),
+    "时间应加在作者栏"
+  );
+  assert.ok(
+    !ctx.document.querySelector(".Post-Header .aitools-publish-time"),
+    "有作者栏时不应在文章头部重复显示"
+  );
 
   await ctx.chrome.storage.local.set({
     aiToolsSettings: settingsWith((s) => {
@@ -370,7 +374,7 @@ test("Hacker News：主题与行距下拉框生效", async () => {
   );
 });
 
-test("Pinterest：开关关闭时不改写地址，开启时按地址去重下载", async () => {
+test("Pinterest：开关关闭时不改写地址也不下载", async () => {
   const enabledCtx = await boot("content_scripts/pinterest_content.js", "https://i.pinimg.com/736x/a/b.jpg");
   await sleep(80);
   assert.ok(
@@ -391,20 +395,65 @@ test("Pinterest：开关关闭时不改写地址，开启时按地址去重下�
     "关闭功能后不应改写地址"
   );
 
-  const store = {};
   const imageBody = `<img src="https://i.pinimg.com/originals/x/y.jpg">`;
-  const first = await boot("content_scripts/pinterest_content.js", "https://i.pinimg.com/originals/x/y.jpg", {
+  const imageUrl = "https://i.pinimg.com/originals/x/y.jpg";
+
+  const featureOff = await boot("content_scripts/pinterest_content.js", imageUrl, {
+    body: imageBody,
+    local: {
+      aiToolsSettings: settingsWith((s) => {
+        s.sites.pinterest.features.originalImage.enabled = false;
+      })
+    }
+  });
+  await sleep(200);
+  assert.strictEqual(featureOff.sentMessages.length, 0, "子开关关闭时不应下载");
+
+  const siteOff = await boot("content_scripts/pinterest_content.js", imageUrl, {
+    body: imageBody,
+    local: {
+      aiToolsSettings: settingsWith((s) => {
+        s.sites.pinterest.enabled = false;
+      })
+    }
+  });
+  await sleep(200);
+  assert.strictEqual(siteOff.sentMessages.length, 0, "站点关闭时不应下载");
+});
+
+test("Pinterest：窗口期内去重，窗口之外与旧格式记录重新下载", async () => {
+  const imageBody = `<img src="https://i.pinimg.com/originals/x/y.jpg">`;
+  const imageUrl = "https://i.pinimg.com/originals/x/y.jpg";
+
+  const store = {};
+  const first = await boot("content_scripts/pinterest_content.js", imageUrl, {
     body: imageBody,
     local: store
   });
   await sleep(200);
   assert.strictEqual(first.sentMessages.length, 1, "首次应触发下载");
-  assert.strictEqual(first.sentMessages[0].url, "https://i.pinimg.com/originals/x/y.jpg");
+  assert.strictEqual(first.sentMessages[0].url, imageUrl);
 
-  const second = await boot("content_scripts/pinterest_content.js", "https://i.pinimg.com/originals/x/y.jpg", {
+  const second = await boot("content_scripts/pinterest_content.js", imageUrl, {
     body: imageBody,
     local: store
   });
   await sleep(200);
-  assert.strictEqual(second.sentMessages.length, 0, "重复打开同一图片不应再次下载");
+  assert.strictEqual(second.sentMessages.length, 0, "窗口期内重复打开不重复下载");
+
+  const legacy = await boot("content_scripts/pinterest_content.js", imageUrl, {
+    body: imageBody,
+    local: { downloadedUrls: [imageUrl] }
+  });
+  await sleep(200);
+  assert.strictEqual(legacy.sentMessages.length, 1, "旧格式纯字符串记录视为过期，应重新下载");
+
+  const expired = await boot("content_scripts/pinterest_content.js", imageUrl, {
+    body: imageBody,
+    local: {
+      downloadedUrls: [{ url: imageUrl, at: Date.now() - 11 * 60 * 1000 }]
+    }
+  });
+  await sleep(200);
+  assert.strictEqual(expired.sentMessages.length, 1, "超过窗口期应重新下载");
 });

@@ -14,7 +14,6 @@ const EXPECTED_HOSTS = {
   grok: ["x.com"],
   gemini: ["gemini.google.com"],
   zhihu: ["zhuanlan.zhihu.com"],
-  medium: ["medium.com", "levelup.gitconnected.com"],
   perplexity: ["perplexity.ai"],
   pinterest: ["i.pinimg.com"],
   behance: ["behance.net"],
@@ -29,8 +28,6 @@ const INJECTED_HOSTS = [
   "i.pinimg.com",
   "chatgpt.com",
   "www.behance.net",
-  "medium.com",
-  "levelup.gitconnected.com",
   "speed.measurementlab.net",
   "www.perplexity.ai",
   "zhuanlan.zhihu.com",
@@ -150,6 +147,22 @@ test("存量配置里手工塞入的下拉框选项不能覆盖默认选项", ()
     ["default", "dark", "blue", "green", "purple"],
     "选项列表以默认配置为准"
   );
+});
+
+test("已下线站点的存量配置会被丢弃", () => {
+  const merged = defaults.mergeSettings({
+    sites: {
+      medium: {
+        name: "Medium",
+        enabled: false,
+        features: { hideFloat: { enabled: false } }
+      },
+      chatgpt: { enabled: true }
+    }
+  });
+
+  assert.strictEqual(merged.sites.medium, undefined, "存量 Medium 条目不应复活");
+  assert.ok(merged.sites.chatgpt, "仍然在线的站点要保留");
 });
 
 test("无配置时返回默认配置且不共享引用", () => {

@@ -2,6 +2,8 @@
 
 为特定网站提供自动化功能和个性化操作的浏览器扩展。
 
+当前版本 1.1
+
 ## 功能列表
 
 ### ChatGPT，chatgpt.com
@@ -20,13 +22,10 @@
 - 快捷提示词按钮，适配富文本输入框，共享同一套提示词配置
 
 ### Pinterest，i.pinimg.com
-- 自动把 736x 与 1200x 地址替换为 originals 并下载高清原图，按地址去重
+- 自动把 736x 与 1200x 地址替换为 originals 并下载高清原图，十分钟内按地址去重，每道门在控制台打印原因
 
 ### Behance，behance.net
 - 修复导航固定与轮播定位问题
-
-### Medium，medium.com 与 levelup.gitconnected.com
-- 隐藏文本选择弹出菜单
 
 ### Perplexity，perplexity.ai
 - 隐藏不必要的浮动元素
@@ -69,7 +68,6 @@
 │   ├── grok_content.js        # Grok 增强
 │   ├── pinterest_content.js   # Pinterest 原图下载
 │   ├── behance.js             # Behance 定位修复
-│   ├── medium_content.js      # Medium 菜单隐藏
 │   ├── perplexity_content.js  # Perplexity 浮动元素隐藏
 │   ├── zhihu_content.js       # 知乎增强
 │   ├── laoqian_content.js     # 老钱博客背景
@@ -78,11 +76,14 @@
 │   └── hacker_news/           # Hacker News 美化
 │       ├── content.js
 │       └── styles.css
-├── tests/                     # 自动化测试
+├── tests/                     # 自动化测试，当前 41 项
 ├── eslint.config.js           # 代码检查规则
 ├── package.json               # 测试与检查命令
+├── gg.sh / gg.bat             # 一键提交并推送到 origin
 ├── .editorconfig / .gitattributes  # 编辑器与行尾约定
-└── readme.md
+├── .gitignore
+├── readme.md
+└── 修改过程记录.md             # 改动过程与复核结论
 ```
 
 ## 安装方法
@@ -122,6 +123,13 @@
 2. npm test，运行全部自动化测试
 3. npm run lint，运行代码检查
 
+### 一键提交推送
+
+1. macOS 与 Linux 执行 ./gg.sh，或带上提交信息 ./gg.sh "本次改动"
+2. Windows 执行 gg.bat
+3. 脚本流程，切换到 main 分支，提示输入提交信息，暂存全部改动，提交并推送到 origin，最后打印状态
+4. 提交信息为空时直接取消，不会产生空提交
+
 ### 添加新功能
 
 1. 在 defaults.js 的 sites 中声明站点 hosts 与功能项，这样设置页会自动生成开关
@@ -149,7 +157,7 @@
 
 ## 权限说明
 
-- storage，读写站点配置与提示词，数据存放在 storage.local
+- storage，读写站点配置与提示词，数据存放在 storage.local，首次启动会把 storage.sync 上的旧配置自动迁移过来
 - downloads，下载 Pinterest 原图
 - sidePanel，点击图标打开侧边栏
 
@@ -163,6 +171,17 @@
 
 ## 更新日志
 
+### 2026.09.24 更新
+- 修复 Pinterest 自动下载失效，下载去重从永久改为十分钟窗口，旧的纯字符串记录视为过期，重新打开即可下载
+- Pinterest 每道门增加控制台日志，站点开关、子开关、地址格式、去重剩余时间、下载成败都会打印原因
+- 移除 Medium 与 levelup.gitconnected.com 的全部功能，包含内容脚本、站点配置与匹配规则
+- 存量配置里已下线站点的条目在合并时直接丢弃，设置页不再出现没有内容脚本的死开关
+- 修正 Hacker News 全局字重、标题链接色与作者色，恢复与旧版一致的渲染结果
+- 修正知乎发布时间的落点，有作者栏时不再在文章头部重复显示
+- 删除只被 popup 引用的 images/g1.png
+- 新增 gg.sh，macOS 与 Linux 一键提交推送
+- 自动化测试增至 41 项，readme 与修改过程记录同步更新
+
 ### 2026.09.23 更新
 - 删除 popup，点击工具栏图标直接打开侧边栏
 - 站点匹配改为 hosts 显式声明，修复 Grok、Pinterest、老钱博客开关失效的问题
@@ -174,7 +193,7 @@
 - Pinterest 关闭开关时不再改写地址，下载按地址去重
 - 权限收敛为 storage、downloads、sidePanel
 - 新增 defaults.js 共享配置，删除死代码与重复的默认提示词
-- 新增 ESLint 与 33 项自动化测试，统一行尾为 LF
+- 新增 ESLint 与自动化测试，统一行尾为 LF
 
 ### 2026.04.18 更新
 - Grok 支持，添加全异步防抖自动聚焦机制，解决 SPA 页面焦点被内部脚本抢走的问题
@@ -192,7 +211,6 @@
 - 添加老钱博客暗色背景支持
 - 拆分 content.js 为多个独立文件
 - 支持 Pinterest 原始图片下载
-- 支持 Medium 文本选择菜单隐藏
 
 ## 参考资料
 

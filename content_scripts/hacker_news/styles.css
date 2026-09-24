@@ -18,7 +18,7 @@
   font-display: swap;
 }
 
-/* Reset and base styles with Nunito Bold 700 圆体字体 */
+/* Reset and base styles with Nunito 圆体字体 */
 * {
   margin: 0 !important;
   padding: 0 !important;
@@ -27,9 +27,9 @@
   animation: none !important;
   transition: none !important;
   transform: none !important;
-  /* 全局 Nunito Bold 700 圆体字体强制应用 */
+  /* 全局 Nunito 600 字重，与旧版渲染结果一致 */
   font-family: "Nunito", sans-serif !important;
-  font-weight: 700 !important;
+  font-weight: 600 !important;
   font-style: normal !important;
 }
 
@@ -130,7 +130,7 @@ td {
 }
 
 .titleline a {
-  color: #1d1f57 !important; /* 深蓝色字体，与翻译后的颜色一致 */
+  color: #1a4480 !important; /* 与旧版主题默认链接色一致 */
   text-decoration: none !important;
   font-family: "Nunito", sans-serif !important;
   font-weight: 900 !important; /* 增加字体粗细到900，更加粗体 */
@@ -191,7 +191,7 @@ td {
 }
 
 .hnuser {
-  color: #3c963c !important;
+  color: #ff6600 !important; /* 与旧版主题默认强调色一致 */
   text-decoration: none !important;
 }
 

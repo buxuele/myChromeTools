@@ -88,18 +88,6 @@ const DEFAULT_CONFIG = {
         }
       }
     },
-    medium: {
-      name: "Medium",
-      hosts: ["medium.com", "levelup.gitconnected.com"],
-      enabled: true,
-      features: {
-        hideFloat: {
-          name: "隐藏文本选择菜单",
-          desc: "隐藏选中文本后的弹出菜单",
-          enabled: true
-        }
-      }
-    },
     perplexity: {
       name: "Perplexity",
       hosts: ["perplexity.ai"],
@@ -243,10 +231,8 @@ function mergeSettings(stored) {
   const storedSites = stored.sites || {};
   for (const [key, site] of Object.entries(storedSites)) {
     const def = base.sites[key];
-    if (!def) {
-      base.sites[key] = site;
-      continue;
-    }
+    // 已下线的站点不再保留，避免设置页出现没有内容脚本的死开关
+    if (!def) continue;
 
     const merged = { ...def, ...site, hosts: def.hosts, features: {} };
     for (const [featureKey, featureDef] of Object.entries(def.features)) {

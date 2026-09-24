@@ -41,10 +41,6 @@
       "run_at": "document_end"
     },
     {
-      "matches": ["https://medium.com/*", "https://levelup.gitconnected.com/*"],
-      "js": ["defaults.js", "content_scripts/utils.js", "content_scripts/medium_content.js"]
-    },
-    {
       "matches": ["https://speed.measurementlab.net/*"],
       "js": ["defaults.js", "content_scripts/utils.js", "content_scripts/speed_lab.js"]
     },
